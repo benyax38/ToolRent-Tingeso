@@ -23,14 +23,14 @@ public class ToolService {
         DADA_DE_BAJA
     }
 
+    public List<ToolEntity> getAllTools() {
+        return toolRepository.findAll();
+    }
+
     public ToolEntity createTools(ToolEntity tool) {
         tool.setInitialState(ToolStatus.DISPONIBLE);
         tool.setCurrentState(ToolStatus.DISPONIBLE);
         return toolRepository.save(tool);
-    }
-
-    public List<ToolEntity> getAllTools() {
-        return toolRepository.findAll();
     }
 
     public void deleteToolsById(Long id) {
