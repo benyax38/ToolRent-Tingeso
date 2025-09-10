@@ -7,12 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 //JPA/Hibernate
 @Entity //Mapea a una tabla en la base de datos
-@Table(name = "loans")
+@Table(name = "clients")
 
 //Lombok
 @Data //Genera automaticamente getters, setters y metodos extra
@@ -20,38 +18,40 @@ import java.util.List;
 @AllArgsConstructor //Genera un constructor con todos los atributos
 @Builder //Permite ingresar los argumentos del constructor en cualquier orden
 
-public class LoanEntity {
+public class KardexEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "loan_id")
-    private Long loanId; //El tipo de dato Long permite que hibernate distinga entre 0 y null
+    @Column(name = "movement_id")
+    private Long movementId;
 
-    @Column(name = "delivery_date")
-    private LocalDateTime deliveryDate;
+    @Column(name = "type", length = 20)
+    private String type;
 
-    @Column(name = "deadline")
-    private LocalDateTime deadline;
+    @Column(name = "movement_date")
+    private LocalDateTime movementDate;
 
-    @Column(name = "return_date")
-    private LocalDateTime returnDate;
+    @Column(name = "affected_amount")
+    private int affectedAmount;
 
-    @Column(name = "loan_state", length = 20)
-    private String loanState;
-
-    @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PenaltyEntity> penalties = new ArrayList<>();
+    @Column(name = "details", length = 256)
+    private String details;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private ClientEntity client;
 
-    @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<KardexEntity> kardexes = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "loan_id", nullable = false)
+    private LoanEntity loan;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "tool_id", nullable = false)
     private ToolEntity tool;
+
+    @ManyToOne
+    @JoinColumn(name = "tool_catalog_id", nullable = false)
+    private ToolCatalogEntity toolCatalog;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
