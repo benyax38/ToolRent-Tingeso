@@ -39,21 +39,21 @@ public class KardexEntity {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
-    private ClientEntity client;
+    private ClientEntity clients;
 
     @ManyToOne
     @JoinColumn(name = "loan_id", nullable = false)
-    private LoanEntity loan;
+    private LoanEntity loans;
 
     @ManyToOne
     @JoinColumn(name = "tool_id", nullable = false)
-    private ToolEntity tool;
+    private ToolEntity tools;
 
     @ManyToOne
     @JoinColumn(name = "tool_catalog_id", nullable = false)
-    private ToolCatalogEntity toolCatalog;
+    private ToolCatalogEntity tool_catalogs;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private UserEntity users;
 }

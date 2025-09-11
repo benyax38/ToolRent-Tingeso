@@ -28,8 +28,7 @@ public class ToolService {
     }
 
     public ToolEntity createTools(ToolEntity tool) {
-        tool.setInitialState(ToolStatus.DISPONIBLE);
-        tool.setCurrentState(ToolStatus.DISPONIBLE);
+        tool.setCurrentToolState(ToolStatus.DISPONIBLE);
         return toolRepository.save(tool);
     }
 

@@ -49,5 +49,5 @@ public class UserEntity {
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity role;
+    private RoleEntity roles;
 }

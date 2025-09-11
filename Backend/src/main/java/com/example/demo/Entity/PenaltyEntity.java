@@ -40,9 +40,9 @@ public class PenaltyEntity {
 
     @ManyToOne
     @JoinColumn(name = "loan_id", nullable = false)
-    private LoanEntity loan;
+    private LoanEntity loans;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
-    private ClientEntity client;
+    private ClientEntity clients;
 }

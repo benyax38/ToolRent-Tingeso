@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.example.demo.Service.ToolService.ToolStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,5 +39,5 @@ public class ToolEntity {
 
     @ManyToOne
     @JoinColumn(name = "tool_catalog_id", nullable = false)
-    private ToolCatalogEntity toolCatalog;
+    private ToolCatalogEntity tool_catalogs;
 }

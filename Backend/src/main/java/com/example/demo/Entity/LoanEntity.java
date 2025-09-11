@@ -44,16 +44,16 @@ public class LoanEntity {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
-    private ClientEntity client;
+    private ClientEntity clients;
 
     @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KardexEntity> kardexes = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "tool_id", nullable = false)
-    private ToolEntity tool;
+    private ToolEntity tools;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private UserEntity users;
 }
