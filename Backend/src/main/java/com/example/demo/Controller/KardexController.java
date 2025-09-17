@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.KardexDTO;
 import com.example.demo.Entity.KardexEntity;
 import com.example.demo.Service.KardexService;
 import jakarta.validation.Valid;
@@ -19,8 +20,8 @@ public class KardexController {
     public KardexController(KardexService kardexService) { this.kardexService = kardexService; }
 
     @GetMapping
-    public ResponseEntity<List<KardexEntity>> getAllKardex() {
-        List<KardexEntity> kardexList = kardexService.getAllKardexes();
+    public ResponseEntity<List<KardexDTO>> getAllKardex() {
+        List<KardexDTO> kardexList = kardexService.getAllKardexesDTO();
         return ResponseEntity.ok(kardexList);
     }
 

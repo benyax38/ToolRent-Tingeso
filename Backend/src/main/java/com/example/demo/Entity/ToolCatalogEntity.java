@@ -1,7 +1,16 @@
 package com.example.demo.Entity;
 
-import com.example.demo.Service.ToolService;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,20 +36,19 @@ public class ToolCatalogEntity {
     @Column(name = "tool_catalog_id")
     private Long toolCatalogId; //El tipo de dato Long permite que hibernate distinga entre 0 y null
 
+    @NotBlank(message = "El nombre de la herramienta es obligatorio")
     @Column(name = "tool_name", length = 30)
     private String toolName;
 
+    @NotBlank(message = "La categoría es obligatoria")
     @Column(name = "tool_category", length = 20)
     private String toolCategory;
-
-    //ToolStatus es un enum que contiene strings
-    @Enumerated(EnumType.STRING) //Mapea a la bd como string
-    @Column(name = "initial_tool_state", length = 20)
-    private ToolService.ToolStatus initialToolState;
 
     @Column(name = "rental_value")
     private Double rentalValue;
 
+    @NotNull(message = "El valor de reposición es obligatorio")
+    @Positive(message = "El valor de reposición debe ser mayor que 0")
     @Column(name = "replacement_value")
     private Double replacementValue;
 

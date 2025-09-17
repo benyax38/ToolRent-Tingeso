@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.RoleDTO;
 import com.example.demo.Entity.RoleEntity;
 import com.example.demo.Service.RoleService;
 import jakarta.validation.Valid;
@@ -19,8 +20,8 @@ public class RoleController {
     public RoleController(RoleService roleService) { this.roleService = roleService; }
 
     @GetMapping
-    public ResponseEntity<List<RoleEntity>> getAllRole() {
-        List<RoleEntity> roleList = roleService.getAllRoles();
+    public ResponseEntity<List<RoleDTO>> getAllRole() {
+        List<RoleDTO> roleList = roleService.getAllRolesDTO();
         return ResponseEntity.ok(roleList);
     }
 

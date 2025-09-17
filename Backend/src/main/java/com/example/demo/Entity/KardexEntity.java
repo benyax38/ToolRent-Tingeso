@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 //JPA/Hibernate
 @Entity //Mapea a una tabla en la base de datos
-@Table(name = "clients")
+@Table(name = "kardexes")
 
 //Lombok
 @Data //Genera automaticamente getters, setters y metodos extra
@@ -38,15 +38,15 @@ public class KardexEntity {
     private String details;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id")
     private ClientEntity clients;
 
     @ManyToOne
-    @JoinColumn(name = "loan_id", nullable = false)
+    @JoinColumn(name = "loan_id")
     private LoanEntity loans;
 
     @ManyToOne
-    @JoinColumn(name = "tool_id", nullable = false)
+    @JoinColumn(name = "tool_id")
     private ToolEntity tools;
 
     @ManyToOne

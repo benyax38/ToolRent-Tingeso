@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.UserDTO;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Service.UserService;
 import jakarta.validation.Valid;
@@ -19,8 +20,8 @@ public class UserController {
     public UserController(UserService userService) { this.userService = userService; }
 
     @GetMapping
-    public ResponseEntity<List<UserEntity>> getAllUser() {
-        List<UserEntity> userList = userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUser() {
+        List<UserDTO> userList = userService.getAllUsersDTO();
         return ResponseEntity.ok(userList);
     }
 

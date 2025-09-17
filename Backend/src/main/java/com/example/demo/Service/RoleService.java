@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.RoleDTO;
 import com.example.demo.Entity.RoleEntity;
 import com.example.demo.Repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,13 @@ public class RoleService {
     @Autowired
     public RoleService(RoleRepository roleRepository) { this.roleRepository = roleRepository; }
 
-    public List<RoleEntity> getAllRoles() {
-        return roleRepository.findAll();
+    public List<RoleDTO> getAllRolesDTO() {
+        return roleRepository.findAll().stream()
+                .map(role -> new RoleDTO(
+                        role.getRoleId(),
+                        role.getRole()
+                ))
+                .toList();
     }
 
     public RoleEntity createRoles(RoleEntity role) {

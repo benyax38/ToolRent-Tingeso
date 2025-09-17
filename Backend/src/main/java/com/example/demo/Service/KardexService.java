@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.KardexDTO;
 import com.example.demo.Entity.KardexEntity;
 import com.example.demo.Repository.KardexRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,16 @@ public class KardexService {
     @Autowired
     public KardexService(KardexRepository kardexRepository) { this.kardexRepository = kardexRepository; }
 
-    public List<KardexEntity> getAllKardexes() {
-        return kardexRepository.findAll();
+    public List<KardexDTO> getAllKardexesDTO() {
+        return kardexRepository.findAll().stream()
+                .map(kardex -> new KardexDTO(
+                        kardex.getMovementId(),
+                        kardex.getType(),
+                        kardex.getMovementDate(),
+                        kardex.getAffectedAmount(),
+                        kardex.getDetails()
+                ))
+                .toList();
     }
 
     public KardexEntity createKardexes(KardexEntity kardex) {
