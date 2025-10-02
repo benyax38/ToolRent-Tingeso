@@ -1,7 +1,6 @@
 package com.example.demo.Service;
 
 import com.example.demo.Entity.ClientEntity;
-import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class ClientService {
     }
 
     public ClientEntity createClients(ClientEntity client) {
-        client.setState(ClientStatus.ACTIVO);
+        client.setClientState(ClientStatus.ACTIVO);
         return clientRepository.save(client);
     }
 
