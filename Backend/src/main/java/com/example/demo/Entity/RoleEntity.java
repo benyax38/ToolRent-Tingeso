@@ -27,7 +27,7 @@ public class RoleEntity {
     private Long roleId;
 
     @Column(name = "role", length = 25)
-    private String role;
+    private String roleName;
 
     @OneToMany(mappedBy = "roles", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserEntity> users = new ArrayList<>();

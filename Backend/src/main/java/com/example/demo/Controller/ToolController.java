@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.ToolDTO;
 import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Service.ToolService;
 import jakarta.validation.Valid;
@@ -19,8 +20,8 @@ public class ToolController {
     public ToolController(ToolService toolService) { this.toolService = toolService; }
 
     @GetMapping
-    public ResponseEntity<List<ToolEntity>> getAllTool() {
-        List<ToolEntity> toolList = toolService.getAllTools();
+    public ResponseEntity<List<ToolDTO>> getAllTool() {
+        List<ToolDTO> toolList = toolService.getAllToolsDTO();
         return ResponseEntity.ok(toolList);
     }
 

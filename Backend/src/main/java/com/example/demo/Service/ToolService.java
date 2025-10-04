@@ -1,11 +1,13 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.ToolDTO;
 import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Repository.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ToolService {
@@ -23,8 +25,11 @@ public class ToolService {
         DADA_DE_BAJA
     }
 
-    public List<ToolEntity> getAllTools() {
-        return toolRepository.findAll();
+    public List<ToolDTO> getAllToolsDTO() {
+        List<ToolEntity> tools = toolRepository.findAll();
+        return tools.stream()
+                .map(ToolDTO::new) // usa el constructor que mapea desde la entidad
+                .collect(Collectors.toList());
     }
 
     public ToolEntity createTools(ToolEntity tool) {

@@ -3,9 +3,12 @@ package com.example.demo.Service;
 import com.example.demo.DTOs.ToolCatalogDTO;
 import com.example.demo.Entity.KardexEntity;
 import com.example.demo.Entity.ToolCatalogEntity;
+import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.KardexRepository;
 import com.example.demo.Repository.ToolCatalogRepository;
+import com.example.demo.Repository.ToolRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +20,13 @@ public class ToolCatalogService {
 
     private final ToolCatalogRepository toolCatalogRepository;
     private final KardexRepository kardexRepository;
+    private final ToolRepository toolRepository;
 
     @Autowired
-    public ToolCatalogService(ToolCatalogRepository toolCatalogRepository, KardexRepository kardexRepository) {
+    public ToolCatalogService(ToolCatalogRepository toolCatalogRepository, KardexRepository kardexRepository, ToolRepository toolRepository) {
         this.toolCatalogRepository = toolCatalogRepository;
         this.kardexRepository = kardexRepository;
+        this.toolRepository = toolRepository;
     }
 
     public List<ToolCatalogDTO> getAllCatalogsDTO() {
@@ -30,35 +35,47 @@ public class ToolCatalogService {
                         catalog.getToolCatalogId(),
                         catalog.getToolName(),
                         catalog.getToolCategory(),
-                        catalog.getReplacementValue()
+                        catalog.getRentalValue(),
+                        catalog.getReplacementValue(),
+                        catalog.getDescription(),
+                        catalog.getAvailableUnits()
                 ))
                 .toList();
     }
 
+    @Transactional
     public ToolCatalogEntity createCatalogs(ToolCatalogEntity catalog, UserEntity user) {
-        //Guardar herramienta en catalogo
-        ToolCatalogEntity savedTool = toolCatalogRepository.save(catalog);
+        // Guardar herramienta en catálogo
+        ToolCatalogEntity savedToolCatalog = toolCatalogRepository.save(catalog);
 
-        //Crear movimiento en kardex
+        // Crear las instancias físicas de Tool
+        for (int i = 0; i < savedToolCatalog.getAvailableUnits(); i++) {
+            ToolEntity tool = new ToolEntity();
+            tool.setTool_catalogs(savedToolCatalog);
+            tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
+            toolRepository.save(tool);
+        }
+
+        // Crear movimiento en kardex
         KardexEntity kardexMovement = new KardexEntity();
         kardexMovement.setType("INGRESO");
         kardexMovement.setMovementDate(LocalDateTime.now());
-        kardexMovement.setAffectedAmount(savedTool.getAvailableUnits());
+        kardexMovement.setAffectedAmount(savedToolCatalog.getAvailableUnits());
         kardexMovement.setDetails("Nueva herramienta ingresada al sistema");
 
-        //Relaciones
-        kardexMovement.setTool_catalogs(savedTool);
+        // Relaciones
+        kardexMovement.setTool_catalogs(savedToolCatalog);
         kardexMovement.setUsers(user);
         kardexMovement.setTools(null);
         kardexMovement.setLoans(null);
         kardexMovement.setClients(null);
 
-        //Guardar en kardex
+        // Guardar en kardex
         kardexRepository.save(kardexMovement);
 
-        return savedTool;
-
+        return savedToolCatalog;
     }
+
 
     public void deleteCatalogsById(Long id) {
         if (!toolCatalogRepository.existsById(id)) {

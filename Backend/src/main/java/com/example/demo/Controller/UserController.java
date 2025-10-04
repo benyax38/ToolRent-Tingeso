@@ -1,7 +1,8 @@
 package com.example.demo.Controller;
 
-import com.example.demo.DTOs.UserDTO;
-import com.example.demo.Entity.UserEntity;
+import com.example.demo.DTOs.UserLoginDTO;
+import com.example.demo.DTOs.UserRegisterDTO;
+import com.example.demo.DTOs.UserResponseDTO;
 import com.example.demo.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,22 +14,30 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
+
     @Autowired
     public UserController(UserService userService) { this.userService = userService; }
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUser() {
-        List<UserDTO> userList = userService.getAllUsersDTO();
+    public ResponseEntity<List<UserResponseDTO>> getAllUser() {
+        List<UserResponseDTO> userList = userService.getAllUsersDTO();
         return ResponseEntity.ok(userList);
     }
 
-    @PostMapping
-    public ResponseEntity<UserEntity> createUser(@Valid @RequestBody UserEntity user) {
-        UserEntity createdUser = userService.createUsers(user);
+    @PostMapping("/register")
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRegisterDTO user) {
+        UserResponseDTO createdUser = userService.createUsers(user);
         return ResponseEntity.ok(createdUser);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseDTO> loginUsers(@Valid @RequestBody UserLoginDTO dto) {
+        UserResponseDTO loginUser = userService.loginUsers(dto);
+        return ResponseEntity.ok(loginUser);
     }
 
     @DeleteMapping("/{id}")

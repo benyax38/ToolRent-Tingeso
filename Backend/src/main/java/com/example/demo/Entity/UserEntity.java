@@ -41,6 +41,9 @@ public class UserEntity {
     @Column(name = "user_email", length = 60)
     private String userEmail;
 
+    @Column(name = "user_password", length = 100, nullable = false)
+    private String userPassword;
+
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LoanEntity> loans = new ArrayList<>();
 

@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.ClientDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Service.ClientService;
 import jakarta.validation.Valid;
@@ -19,8 +20,8 @@ public class ClientController {
     public ClientController(ClientService clientService) { this.clientService = clientService; }
 
     @GetMapping
-    public ResponseEntity<List<ClientEntity>> getAllClient() {
-        List<ClientEntity> clientList = clientService.getAllClients();
+    public ResponseEntity<List<ClientDTO>> getAllClient() {
+        List<ClientDTO> clientList = clientService.getAllClientsDTO();
         return ResponseEntity.ok(clientList);
     }
 

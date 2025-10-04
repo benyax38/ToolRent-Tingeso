@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,12 +28,15 @@ public class LoanEntity {
     @Column(name = "loan_id")
     private Long loanId; //El tipo de dato Long permite que hibernate distinga entre 0 y null
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "delivery_date")
     private LocalDateTime deliveryDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "deadline")
     private LocalDateTime deadline;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "return_date")
     private LocalDateTime returnDate;
 

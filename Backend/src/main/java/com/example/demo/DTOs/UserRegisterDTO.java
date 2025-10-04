@@ -16,17 +16,20 @@ import lombok.NoArgsConstructor;
         "userRut",
         "userPhone",
         "userEmail",
-        "role"
+        "userPassword",
+        "roleId"
 })
 
-public class UserDTO {
+// Enviado por el frontend para crear un nuevo usuario
+public class UserRegisterDTO {
 
-    private Long UserId;
-    private String UserFirstName;
-    private String UserLastName;
-    private String UserRut;
-    private String UserPhone;
-    private String UserEmail;
+    private Long userId;
+    private String userFirstName;
+    private String userLastName;
+    private String userRut;
+    private String userPhone;
+    private String userEmail;
+    private String userPassword;
 
-    private RoleDTO Role;
+    private Long roleId;
 }

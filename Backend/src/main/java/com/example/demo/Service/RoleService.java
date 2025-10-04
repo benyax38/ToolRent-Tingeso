@@ -20,7 +20,7 @@ public class RoleService {
         return roleRepository.findAll().stream()
                 .map(role -> new RoleDTO(
                         role.getRoleId(),
-                        role.getRole()
+                        role.getRoleName()
                 ))
                 .toList();
     }

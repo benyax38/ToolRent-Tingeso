@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.ClientDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,17 @@ public class ClientService {
         RESTRINGIDO
     }
 
-    public List<ClientEntity> getAllClients() {
-        return clientRepository.findAll();
+    public List<ClientDTO> getAllClientsDTO() {
+        return clientRepository.findAll().stream()
+                .map(client -> new ClientDTO(
+                        client.getClientId(),
+                        client.getClientFirstName(),
+                        client.getClientLastName(),
+                        client.getClientRUT(),
+                        client.getClientPhone(),
+                        client.getClientEmail()
+                ))
+                .toList();
     }
 
     public ClientEntity createClients(ClientEntity client) {
