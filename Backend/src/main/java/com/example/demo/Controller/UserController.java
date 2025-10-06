@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.AuthResponseDTO;
 import com.example.demo.DTOs.UserLoginDTO;
 import com.example.demo.DTOs.UserRegisterDTO;
 import com.example.demo.DTOs.UserResponseDTO;
@@ -35,8 +36,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDTO> loginUsers(@Valid @RequestBody UserLoginDTO dto) {
-        UserResponseDTO loginUser = userService.loginUsers(dto);
+    public ResponseEntity<AuthResponseDTO> loginUsers(@Valid @RequestBody UserLoginDTO dto) {
+        AuthResponseDTO loginUser = userService.loginUsers(dto.getUserRut(), dto.getUserPassword());
         return ResponseEntity.ok(loginUser);
     }
 

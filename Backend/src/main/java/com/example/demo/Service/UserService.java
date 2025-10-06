@@ -1,13 +1,13 @@
 package com.example.demo.Service;
 
+import com.example.demo.Config.JwtUtil;
+import com.example.demo.DTOs.AuthResponseDTO;
 import com.example.demo.DTOs.RoleDTO;
-import com.example.demo.DTOs.UserLoginDTO;
 import com.example.demo.DTOs.UserRegisterDTO;
 import com.example.demo.DTOs.UserResponseDTO;
 import com.example.demo.Entity.RoleEntity;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Exception.DuplicateUserException;
-import com.example.demo.Exception.InvalidCredentialsException;
 import com.example.demo.Repository.RoleRepository;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -23,11 +22,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public List<UserResponseDTO> getAllUsersDTO() {
@@ -82,31 +83,36 @@ public class UserService {
         );
     }
 
-    public UserResponseDTO loginUsers(UserLoginDTO dto) {
-        // Obtener usuario como Optional
-        Optional<UserEntity> optionalUser = userRepository.findByUserRut(dto.getUserRut());
+    public AuthResponseDTO loginUsers(String rut, String rawPassword) {
 
         // Validar existencia
-        UserEntity user = optionalUser.orElseThrow(
-                () -> new InvalidCredentialsException("RUT o contraseña incorrectos")
-        );
+        UserEntity user = userRepository.findByUserRut(rut)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Validar contraseña
-        if (!passwordEncoder.matches(dto.getUserPassword(), user.getUserPassword())) {
-            throw new InvalidCredentialsException("RUT o contraseña incorrectos");
+        if(!passwordEncoder.matches(rawPassword, user.getUserPassword())) {
+            throw new RuntimeException("Credenciales incorrectas");
         }
 
-        // Convertir a DTO de salida
-        RoleDTO roleDTO = new RoleDTO(user.getRoles().getRoleId(), user.getRoles().getRoleName());
-        return new UserResponseDTO(
-                user.getUserId(),
-                user.getUserFirstName(),
-                user.getUserLastName(),
-                user.getUserRut(),
-                user.getUserPhone(),
-                user.getUserEmail(),
-                roleDTO
-        );
+        // Generar token con rut como subject y rol
+        String token = jwtUtil.generateToken(user.getUserRut(), user.getRoles().getRoleName());
+
+        // Mapear a DTO
+        UserResponseDTO userDTO = mapToUserResponseDTO(user);
+
+        return new AuthResponseDTO(token, userDTO);
+    }
+
+    public UserResponseDTO mapToUserResponseDTO(UserEntity user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setUserId(user.getUserId());
+        dto.setUserFirstName(user.getUserFirstName());
+        dto.setUserLastName(user.getUserLastName());
+        dto.setUserEmail(user.getUserEmail());
+        dto.setUserRut(user.getUserRut());
+        dto.setUserPhone(user.getUserPhone());
+        dto.setRole(new RoleDTO(user.getRoles().getRoleId(), user.getRoles().getRoleName()));
+        return dto;
     }
 
 
