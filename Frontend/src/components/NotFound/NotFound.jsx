@@ -5,7 +5,7 @@ function NotFound() {
     <div className="notfound-container">
       <h1 className="notfound-title">404</h1>
       <p className="notfound-message">Página no encontrada</p>
-      <a href="/home" className="notfound-link">Volver al inicio</a>
+      <a href="/login" className="notfound-link">Ir al login</a>
     </div>
   );
 }

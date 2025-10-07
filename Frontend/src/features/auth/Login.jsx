@@ -24,9 +24,15 @@ export default function Login() {
     setError(""); // limpia errores previos
 
     try {
-      const user = await authService.loginUser({ userRut, userPassword });
-      console.log("Usuario logueado:", user);
-      // Aquí puedes guardar los datos del usuario en contexto o localStorage
+
+      const data = await authService.loginUser({ userRut, userPassword });
+
+      // Guardar token y usuario en localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      window.location.href = "/dashboard"; // o usar navigate de react-router
+
     } catch (err) {
       setError(err.message);
     }
