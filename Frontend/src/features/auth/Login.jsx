@@ -31,7 +31,7 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      window.location.href = "/dashboard"; // o usar navigate de react-router
+      window.location.href = "/home"; // o usar navigate de react-router
 
     } catch (err) {
       setError(err.message);

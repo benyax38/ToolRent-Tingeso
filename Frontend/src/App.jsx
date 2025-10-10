@@ -1,5 +1,5 @@
 import './App.css'
-import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { getRole } from './utils/auth';
 
 import Dashboard from "./components/pruebas/Dashboard";
@@ -8,7 +8,8 @@ import Tasks from "./components/pruebas/Tasks";
 import Unauthorized from "./features/home/Unauthorized";
 import Login from "./features/auth/Login";
 import Register from "./features/auth/Register";
-import NotFound from "./components/NotFound/NotFound"
+import NotFound from "./components/NotFound/NotFound";
+import Home from "./features/home/Home";
 
 /*
   * Este es el componente raíz de la aplicación.
@@ -34,6 +35,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
+        <Route path="/home" element={<Home />} />
         <Route path="/dashboard" element={
           <ProtectedRoute roles={["ADMIN", "EMPLOYEE"]}>
             <Dashboard />

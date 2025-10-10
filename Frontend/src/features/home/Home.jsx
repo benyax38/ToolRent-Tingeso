@@ -1,23 +1,27 @@
-import Dashboard from "../../components/pruebas/Dashboard";
-import UserManagement from "../../components/pruebas/UserManagement";
-import Reports from "../../components/pruebas/Reports";
-import Tasks from "../../components/pruebas/Tasks";
+import React from "react";
 import { getRole } from "../../utils/auth";
-import { roleAccess } from "../../utils/roleAccess";
+import AdminMenu from "../../components/menu/AdminMenu";
+import EmployeeMenu from "../../components/menu/EmployeeMenu";
 
-function Home() {
-    const role = getRole();
-
-    const hasAccess = (component) => roleAccess[role]?.includes(component);
+/*
+    * Esta página se encarga del renderizado de menús
+    * según el rol que se ha obtenido a partir de la 
+    * información entregada en el login
+*/
+const Home = () => {
+    const role = getRole(); // Obtiene el rol del usuario
 
     return (
-        <div>
-            <Dashboard />
-            {hasAccess("UserManagement") && <UserManagement />}
-            {hasAccess("Reports") && <Reports />}
-            {hasAccess("Tasks") && <Tasks />}
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+            <h1 className="text-3x1 font-bold mb-6">
+                Bienvenido al sistema de arriendo de herramientas
+            </h1>
+
+            {role === "ADMIN" && <AdminMenu />}
+            {role === "EMPLOYEE" && <EmployeeMenu />}
+            {!role && <p className="text-red-600">No tienes un rol asignado</p>}
         </div>
     );
-}
+};
 
 export default Home;
