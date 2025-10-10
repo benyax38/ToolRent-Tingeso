@@ -16,11 +16,17 @@ public class RoleService {
     @Autowired
     public RoleService(RoleRepository roleRepository) { this.roleRepository = roleRepository; }
 
+    // Aqui se definen los roles del sistema
+    public enum UserRoles {
+        ADMIN,
+        EMPLOYEE
+    }
+
     public List<RoleDTO> getAllRolesDTO() {
         return roleRepository.findAll().stream()
                 .map(role -> new RoleDTO(
                         role.getRoleId(),
-                        role.getRoleName()
+                        role.getRoleName().name()
                 ))
                 .toList();
     }

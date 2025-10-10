@@ -41,7 +41,7 @@ public class UserService {
                     userResponseDTO.setUserRut(user.getUserRut());
                     userResponseDTO.setUserPhone(user.getUserPhone());
                     userResponseDTO.setUserEmail(user.getUserEmail());
-                    userResponseDTO.setRole(new RoleDTO(user.getRoles().getRoleId(), user.getRoles().getRoleName()));
+                    userResponseDTO.setRole(new RoleDTO(user.getRoles().getRoleId(), user.getRoles().getRoleName().name()));
                     return userResponseDTO;
                 })
                 .toList();
@@ -71,7 +71,7 @@ public class UserService {
         UserEntity savedUser = userRepository.save(user);
 
         // Convertir a DTO de salida
-        RoleDTO roleDTO = new RoleDTO(role.getRoleId(), role.getRoleName());
+        RoleDTO roleDTO = new RoleDTO(role.getRoleId(), role.getRoleName().name());
         return new UserResponseDTO(
                 savedUser.getUserId(),
                 savedUser.getUserFirstName(),
@@ -95,7 +95,7 @@ public class UserService {
         }
 
         // Generar token con rut como subject y rol
-        String token = jwtUtil.generateToken(user.getUserRut(), user.getRoles().getRoleName());
+        String token = jwtUtil.generateToken(user.getUserRut(), user.getRoles().getRoleName().name());
 
         // Mapear a DTO
         UserResponseDTO userDTO = mapToUserResponseDTO(user);
@@ -111,7 +111,7 @@ public class UserService {
         dto.setUserEmail(user.getUserEmail());
         dto.setUserRut(user.getUserRut());
         dto.setUserPhone(user.getUserPhone());
-        dto.setRole(new RoleDTO(user.getRoles().getRoleId(), user.getRoles().getRoleName()));
+        dto.setRole(new RoleDTO(user.getRoles().getRoleId(), user.getRoles().getRoleName().name()));
         return dto;
     }
 

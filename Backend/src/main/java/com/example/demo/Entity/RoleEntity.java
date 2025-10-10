@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import com.example.demo.Service.RoleService;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +27,9 @@ public class RoleEntity {
     @Column(name = "role_id")
     private Long roleId;
 
-    @Column(name = "role", length = 25)
-    private String roleName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role_name", length = 25)
+    private RoleService.UserRoles roleName;
 
     @OneToMany(mappedBy = "roles", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserEntity> users = new ArrayList<>();
