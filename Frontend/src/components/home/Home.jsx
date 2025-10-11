@@ -1,7 +1,7 @@
 import React from "react";
-import { getRole } from "../../utils/auth";
-import AdminMenu from "../../components/menu/AdminMenu";
-import EmployeeMenu from "../../components/menu/EmployeeMenu";
+import { getRole } from "../auth/auth";
+import AdminMenu from "../menu/AdminMenu";
+import EmployeeMenu from "../menu/EmployeeMenu";
 
 /*
     * Esta página se encarga del renderizado de menús
