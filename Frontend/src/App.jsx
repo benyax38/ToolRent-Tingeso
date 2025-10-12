@@ -1,15 +1,13 @@
 import './App.css'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
-import { getRole } from './utils/auth';
+import { getRole } from './components/auth/auth';
 
-import Dashboard from "./components/pruebas/Dashboard";
-import UserManagent from "./components/pruebas/UserManagement";
-import Tasks from "./components/pruebas/Tasks";
-import Unauthorized from "./features/home/Unauthorized";
-import Login from "./features/auth/Login";
-import Register from "./features/auth/Register";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
 import NotFound from "./components/NotFound/NotFound";
-import Home from "./features/home/Home";
+import Home from "./components/home/Home";
+import Unauthorized from "./components/home/Unauthorized";
+import ToolManagement from './components/options/tools/ToolManagement';
 
 /*
   * Este es el componente raíz de la aplicación.
@@ -36,21 +34,7 @@ function App() {
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
         <Route path="/home" element={<Home />} />
-        <Route path="/dashboard" element={
-          <ProtectedRoute roles={["ADMIN", "EMPLOYEE"]}>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/users" element={
-          <ProtectedRoute roles={["ADMIN"]}>
-            <UserManagent />
-          </ProtectedRoute>
-        } />
-        <Route path="/tasks" element={
-          <ProtectedRoute roles={["EMPLOYEE"]}>
-            <Tasks />
-          </ProtectedRoute>
-        } />
+        <Route path="/toolmng" element={<ToolManagement />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound/>} />
       </Routes>
@@ -58,20 +42,11 @@ function App() {
   );
 }
 /*
-function App() {
-  return (
-    <Router>
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/register" element={<Register/>} />
-          <Route path="*" element={<NotFound/>} />
-        </Routes>
-      </div>
-    </Router>
-  );
-}
+<Route path="/tasks" element={
+          <ProtectedRoute roles={["EMPLOYEE"]}>
+            <Tasks />
+          </ProtectedRoute>
+        } />
 */
 export default App; // Permite exportar App hacia main.jsx
 

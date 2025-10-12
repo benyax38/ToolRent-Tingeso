@@ -7,7 +7,7 @@ const AdminMenu = () => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
             <button
-                onClick={() => navigate("/herramientas")}
+                onClick={() => navigate("/toolmng")}
                 className="p-6 bg-blue-500 text-white rounded-2x1 text-lg font-semibold hover:bg-blue-600">
                 Gestionar Herramientas
             </button>
