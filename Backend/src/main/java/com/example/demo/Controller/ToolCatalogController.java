@@ -32,6 +32,17 @@ public class ToolCatalogController {
         return ResponseEntity.ok(catalogList);
     }
 
+    @GetMapping("/id/{id}")
+    public ResponseEntity<ToolCatalogDTO> getCatalogById(@PathVariable Long id) {
+        return ResponseEntity.ok(toolCatalogService.getCatalogsById(id));
+    }
+
+    @GetMapping("/name/{toolName}")
+    public ResponseEntity<List<ToolCatalogDTO>> getCatalogByName(@PathVariable String toolName) {
+        List<ToolCatalogDTO> results = toolCatalogService.getCatalogsByName(toolName);
+        return ResponseEntity.ok(results);
+    }
+
     @PostMapping
     public ResponseEntity<ToolCatalogEntity> createCatalog(
             @Valid @RequestBody ToolCatalogEntity catalog,

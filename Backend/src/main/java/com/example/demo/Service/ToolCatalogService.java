@@ -8,6 +8,7 @@ import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.KardexRepository;
 import com.example.demo.Repository.ToolCatalogRepository;
 import com.example.demo.Repository.ToolRepository;
+import com.example.demo.Mapper.CatalogMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,19 @@ public class ToolCatalogService {
                         catalog.getDescription(),
                         catalog.getAvailableUnits()
                 ))
+                .toList();
+    }
+
+    public ToolCatalogDTO getCatalogsById(Long id) {
+        ToolCatalogEntity entity = toolCatalogRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Herramienta no encontrada en el catálogo. Id: " + id));
+        return CatalogMapper.toDto(entity);
+    }
+
+    public List<ToolCatalogDTO> getCatalogsByName(String toolName) {
+        var entities = toolCatalogRepository.findByToolNameContainingIgnoreCase(toolName);
+        return entities.stream()
+                .map(CatalogMapper::toDto)
                 .toList();
     }
 
