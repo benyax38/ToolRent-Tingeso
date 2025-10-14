@@ -13,9 +13,9 @@ const AdminMenu = () => {
             </button>
 
             <button
-                onClick={() => navigate("/arriendos")}
+                onClick={() => navigate("/searchTool")}
                 className="p-6 bg-green-500 text-white rounded-2x1 text-lg font-semibold hover:bg-green-600">
-                Ver Arriendos
+                Buscar herramientas
             </button>
 
             <button

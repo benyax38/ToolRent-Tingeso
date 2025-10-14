@@ -8,6 +8,7 @@ import NotFound from "./components/NotFound/NotFound";
 import Home from "./components/home/Home";
 import Unauthorized from "./components/home/Unauthorized";
 import ToolManagement from './components/options/tools/ToolManagement';
+import SearchTool from './components/options/tools/searchTool';
 
 /*
   * Este es el componente raíz de la aplicación.
@@ -35,6 +36,7 @@ function App() {
         <Route path="/register" element={<Register/>} />
         <Route path="/home" element={<Home />} />
         <Route path="/toolmng" element={<ToolManagement />} />
+        <Route path="/searchTool" element={<SearchTool />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound/>} />
       </Routes>
