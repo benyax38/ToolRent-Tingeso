@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Entity.LoanEntity;
+import com.example.demo.DTOs.LoanResponseDTO;
+import com.example.demo.DTOs.LoanRequestDTO;
 import com.example.demo.Service.LoanService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +20,14 @@ public class LoanController {
     public LoanController(LoanService loanService) { this.loanService = loanService; }
 
     @GetMapping
-    public ResponseEntity<List<LoanEntity>> getAllLoan() {
-        List<LoanEntity> loanList = loanService.getAllLoans();
+    public ResponseEntity<List<LoanResponseDTO>> getAllLoan() {
+        List<LoanResponseDTO> loanList = loanService.getAllLoans();
         return ResponseEntity.ok(loanList);
     }
 
     @PostMapping
-    public ResponseEntity<LoanEntity> createLoan(@Valid @RequestBody LoanEntity loan) {
-        LoanEntity createdLoan = loanService.createLoans(loan);
+    public ResponseEntity<LoanResponseDTO> createLoan(@Valid @RequestBody LoanRequestDTO request) {
+        LoanResponseDTO createdLoan = loanService.createLoans(request);
         return ResponseEntity.ok(createdLoan);
     }
 

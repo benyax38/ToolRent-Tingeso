@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import com.example.demo.Service.LoanService;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,24 +41,25 @@ public class LoanEntity {
     @Column(name = "return_date")
     private LocalDateTime returnDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "loan_state", length = 20)
-    private String loanState;
+    private LoanService.LoanStatus loanStatus; //Gestion de estado
 
     @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PenaltyEntity> penalties = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id")
     private ClientEntity clients;
 
     @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KardexEntity> kardexes = new ArrayList<>();
 
     @OneToOne
-    @JoinColumn(name = "tool_id", nullable = false)
+    @JoinColumn(name = "tool_id")
     private ToolEntity tools;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private UserEntity users;
 }
