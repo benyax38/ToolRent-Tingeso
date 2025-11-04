@@ -59,6 +59,11 @@ public class LoanService {
             throw new RuntimeException("No se puede crear el préstamo: el cliente no tiene estado activo.");
         }
 
+        // Comprueba que el cliente no tenga prestamos vencidos
+        if(loanRepository.existsByClients_ClientIdAndLoanStatus(client.getClientId(), LoanStatus.VENCIDO)) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene préstamos vencidos.");
+        }
+
         // Buscar usuario
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));

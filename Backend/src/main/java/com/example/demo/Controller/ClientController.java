@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import com.example.demo.DTOs.ClientDTO;
+import com.example.demo.DTOs.ClientStatusResponseDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Service.ClientService;
 import jakarta.validation.Valid;
@@ -29,6 +30,22 @@ public class ClientController {
     public ResponseEntity<ClientEntity> createClient(@Valid @RequestBody ClientEntity client) {
         ClientEntity createdClient = clientService.createClients(client);
         return ResponseEntity.ok(createdClient);
+    }
+
+    @PatchMapping("/{clientId}/estado")
+    public ResponseEntity<ClientStatusResponseDTO> updateClientState(
+            @PathVariable Long clientId,
+            @Valid @RequestParam String newState) {
+
+        ClientEntity updatedClient = clientService.updateClientStatus(clientId, newState);
+
+        ClientStatusResponseDTO clientStatusResponseDTO = new ClientStatusResponseDTO(
+                updatedClient.getClientId(),
+                updatedClient.getClientFirstName(),
+                updatedClient.getClientState().name()
+        );
+
+        return ResponseEntity.ok(clientStatusResponseDTO);
     }
 
     @DeleteMapping("/{id}")
