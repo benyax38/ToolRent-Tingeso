@@ -30,13 +30,14 @@ public class ClientService {
                         client.getClientLastName(),
                         client.getClientRUT(),
                         client.getClientPhone(),
-                        client.getClientEmail()
+                        client.getClientEmail(),
+                        client.getClientState().name()
                 ))
                 .toList();
     }
 
     public ClientEntity createClients(ClientEntity client) {
-        client.setClientState(ClientStatus.ACTIVO);
+        //client.setClientState(ClientStatus.ACTIVO);
         return clientRepository.save(client);
     }
 

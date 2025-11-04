@@ -40,6 +40,9 @@ public class LoanService {
                     loanDTO.setDeadline(loan.getDeadline());
                     loanDTO.setReturnDate(loan.getReturnDate());
                     loanDTO.setLoanStatus(loan.getLoanStatus().name());
+                    loanDTO.setClientId(loan.getClients().getClientId());
+                    loanDTO.setUserId(loan.getUsers().getUserId());
+                    loanDTO.setToolId(loan.getTools().getToolId());
                     return loanDTO;
                 })
                 .toList();
@@ -47,13 +50,20 @@ public class LoanService {
 
     public LoanResponseDTO createLoans(LoanRequestDTO request) {
 
-        // Buscar cliente, usuario y herramienta
+        // Buscar cliente
         ClientEntity client = clientRepository.findById(request.getClientId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
+        // Validar que el cliente esta activo
+        if(client.getClientState() != ClientService.ClientStatus.ACTIVO) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente no tiene estado activo.");
+        }
+
+        // Buscar usuario
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        // Buscar herramienta
         ToolEntity tool = toolRepository.findById(request.getToolId())
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 

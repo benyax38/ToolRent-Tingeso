@@ -26,4 +26,5 @@ public class ClientDTO {
     private String ClientRut;
     private String ClientPhone;
     private String ClientEmail;
+    private String ClientStatus;
 }
