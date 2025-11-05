@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 */
 
 public class LoanRequestDTO {
-    private LocalDateTime deliveryDate;
     private LocalDateTime deadline;
     private LocalDateTime returnDate;
     private String loanStatus;

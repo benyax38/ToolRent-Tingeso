@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -92,7 +93,7 @@ public class LoanService {
 
         // Crear el prestamo con las entidades asociadas
         LoanEntity loan = LoanEntity.builder()
-                .deliveryDate(request.getDeliveryDate())
+                .deliveryDate(LocalDateTime.now())
                 .deadline(request.getDeadline())
                 .returnDate(request.getReturnDate())
                 .loanStatus(LoanStatus.valueOf(request.getLoanStatus()))
