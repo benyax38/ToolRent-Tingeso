@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import com.example.demo.Service.PenaltyService;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,11 +39,11 @@ public class PenaltyEntity {
     @Column(name = "repair_charge")
     private Double repairCharge;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "penalty_state", length = 20)
+    private PenaltyService.PaymentStatus penaltyStatus; //Gestion de estado
+
     @ManyToOne
     @JoinColumn(name = "loan_id", nullable = false)
     private LoanEntity loans;
-
-    @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
-    private ClientEntity clients;
 }

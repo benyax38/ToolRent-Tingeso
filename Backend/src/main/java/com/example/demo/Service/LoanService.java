@@ -8,8 +8,9 @@ import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.ClientRepository;
 import com.example.demo.Repository.LoanRepository;
-import com.example.demo.Repository.ToolRepository;
+import com.example.demo.Repository.PenaltyRepository;
 import com.example.demo.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,8 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
-    private final ToolRepository toolRepository;
+    private final PenaltyRepository penaltyRepository;
+    private final ToolService toolService;
 
     // Aqui se definen los roles del sistema
     public enum LoanStatus {
@@ -48,6 +50,7 @@ public class LoanService {
                 .toList();
     }
 
+    @Transactional
     public LoanResponseDTO createLoans(LoanRequestDTO request) {
 
         // Buscar cliente
@@ -64,13 +67,28 @@ public class LoanService {
             throw new RuntimeException("No se puede crear el préstamo: el cliente tiene préstamos vencidos.");
         }
 
+        // Valida que el cliente no tenga deudas impagas
+        if (penaltyRepository.existsByLoans_Clients_ClientIdAndPenaltyStatus(
+                client.getClientId(),
+                PenaltyService.PaymentStatus.IMPAGO
+        )) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene multas impagas.");
+        }
+
         // Buscar usuario
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Buscar herramienta
-        ToolEntity tool = toolRepository.findById(request.getToolId())
-                .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
+        /* Validaciones y movimientos desde ToolService
+            * 1. Buscar herramienta
+            * 2. Validar estado DISPONIBLE de la herramienta
+            * 3. Validar que exista catalogo asociado
+            * 4. Validar stock positivo
+            * 5. Marcar herramienta como PRESTADA
+            * 6. Reducir el stock en el catalogo
+            * 7. Guarda los cambios
+        */
+        ToolEntity tool = toolService.validateAndLoanTool(request.getToolId());
 
         // Crear el prestamo con las entidades asociadas
         LoanEntity loan = LoanEntity.builder()

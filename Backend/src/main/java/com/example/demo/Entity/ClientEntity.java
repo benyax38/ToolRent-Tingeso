@@ -46,9 +46,6 @@ public class ClientEntity {
     @Column(name = "client_state", length = 20)
     private ClientStatus clientState;
 
-    @OneToMany(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true) //Si elimino un cliente, elimino sus multas
-    private List<PenaltyEntity> penalties = new ArrayList<>();
-
     @OneToMany(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LoanEntity> loans = new ArrayList<>();
 
