@@ -91,10 +91,20 @@ public class LoanService {
         */
         ToolEntity tool = toolService.validateAndLoanTool(request.getToolId());
 
+        // Validación --> fecha limite de retorno (deadline) no puede ser anterior a fecha de entrega (deliveryDate)
+        LocalDateTime deliveryDate = LocalDateTime.now();
+        LocalDateTime deadline = request.getDeadline();
+
+        if (deadline != null && deadline.isBefore(deliveryDate)) {
+            throw new IllegalArgumentException(
+                    "La fecha de devolución no puede ser anterior a la fecha límite de entrega."
+            );
+        }
+
         // Crear el prestamo con las entidades asociadas
         LoanEntity loan = LoanEntity.builder()
-                .deliveryDate(LocalDateTime.now())
-                .deadline(request.getDeadline())
+                .deliveryDate(deliveryDate)
+                .deadline(deadline)
                 .returnDate(request.getReturnDate())
                 .loanStatus(LoanStatus.valueOf(request.getLoanStatus()))
                 .clients(client)
