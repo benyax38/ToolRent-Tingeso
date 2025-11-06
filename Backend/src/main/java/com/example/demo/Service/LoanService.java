@@ -12,6 +12,7 @@ import com.example.demo.Repository.PenaltyRepository;
 import com.example.demo.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,7 +31,21 @@ public class LoanService {
     // Aqui se definen los roles del sistema
     public enum LoanStatus {
         ACTIVO,
-        VENCIDO
+        VENCIDO,
+        FINALIZADO
+    }
+
+    @Scheduled(cron = "*/30 * * * * *") // se comprueba todos los días a media noche
+    public void checkAndUpdateLoanStatus() {
+
+        // Buscar prestamos activos que ya expiraron
+        List<LoanEntity> overdue = loanRepository.findByLoanStatusAndReturnDateIsNullAndDeadlineBefore(LoanStatus.ACTIVO, LocalDateTime.now());
+
+        // Actualiza el estado de los prestamos
+        overdue.forEach(loan -> loan.setLoanStatus(LoanStatus.VENCIDO));
+
+        // Guarda en la base de datos
+        loanRepository.saveAll(overdue);
     }
 
     public List<LoanResponseDTO> getAllLoans() {
@@ -105,8 +120,8 @@ public class LoanService {
         LoanEntity loan = LoanEntity.builder()
                 .deliveryDate(deliveryDate)
                 .deadline(deadline)
-                .returnDate(request.getReturnDate())
-                .loanStatus(LoanStatus.valueOf(request.getLoanStatus()))
+                .returnDate(null)
+                .loanStatus(LoanStatus.ACTIVO)
                 .clients(client)
                 .users(user)
                 .tools(tool)
