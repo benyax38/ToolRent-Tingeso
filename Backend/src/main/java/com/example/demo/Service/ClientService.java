@@ -1,6 +1,7 @@
 package com.example.demo.Service;
 
 import com.example.demo.DTOs.ClientDTO;
+import com.example.demo.DTOs.ClientRequestDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,15 @@ public class ClientService {
                 .toList();
     }
 
-    public ClientEntity createClients(ClientEntity client) {
-        //client.setClientState(ClientStatus.ACTIVO);
+    public ClientEntity createClients(ClientRequestDTO request) {
+        ClientEntity client = new ClientEntity();
+        client.setClientFirstName(request.getClientFirstName());
+        client.setClientLastName(request.getClientLastName());
+        client.setClientRUT(request.getClientRut());
+        client.setClientPhone(request.getClientPhone());
+        client.setClientEmail(request.getClientEmail());
+        // El cliente siempre inicia con estado ACTIVO
+        client.setClientState(ClientStatus.ACTIVO);
         return clientRepository.save(client);
     }
 

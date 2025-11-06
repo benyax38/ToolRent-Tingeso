@@ -18,6 +18,10 @@ import lombok.NoArgsConstructor;
         "clientEmail"
 })
 
+/*
+    * El objetivo de este DTO es mostrar la informacion de los clientes
+    * en el endpoint que hace get all
+ */
 public class ClientDTO {
 
     private Long ClientId;

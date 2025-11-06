@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import com.example.demo.DTOs.ClientDTO;
+import com.example.demo.DTOs.ClientRequestDTO;
 import com.example.demo.DTOs.ClientStatusResponseDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Service.ClientService;
@@ -27,8 +28,8 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<ClientEntity> createClient(@Valid @RequestBody ClientEntity client) {
-        ClientEntity createdClient = clientService.createClients(client);
+    public ResponseEntity<ClientEntity> createClient(@Valid @RequestBody ClientRequestDTO request) {
+        ClientEntity createdClient = clientService.createClients(request);
         return ResponseEntity.ok(createdClient);
     }
 
