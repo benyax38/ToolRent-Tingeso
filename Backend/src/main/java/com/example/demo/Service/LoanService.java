@@ -4,7 +4,6 @@ import com.example.demo.DTOs.LoanResponseDTO;
 import com.example.demo.DTOs.LoanRequestDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Entity.LoanEntity;
-import com.example.demo.Entity.ToolCatalogEntity;
 import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.ClientRepository;
@@ -160,7 +159,8 @@ public class LoanService {
         LocalDateTime delivery = loan.getDeliveryDate();
         LocalDateTime deadline = loan.getDeadline();
 
-        // Codigo para pruebas ***
+        /*
+        Codigo para pruebas ***
         ToolEntity tool = loan.getTools();
         if (tool == null) throw new RuntimeException("Tool no asociada al préstamo");
 
@@ -169,10 +169,10 @@ public class LoanService {
 
         Double rentalValue = catalog.getDailyRentalValue();
         if (rentalValue == null) throw new RuntimeException("rentalValue es null");
-
+         */
 
         // Se obtiene el valor de arriendo diario de la herramienta desde el catalogo
-        //Double rentalValue = loan.getTools().getTool_catalogs().getDailyRentalValue();
+        Double rentalValue = loan.getTools().getTool_catalogs().getDailyRentalValue();
         double rentalAmount;
 
         // Se calcula la cantidad de dias que duro el prestamo
