@@ -4,6 +4,7 @@ import com.example.demo.DTOs.LoanResponseDTO;
 import com.example.demo.DTOs.LoanRequestDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Entity.LoanEntity;
+import com.example.demo.Entity.ToolCatalogEntity;
 import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.ClientRepository;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -57,6 +59,7 @@ public class LoanService {
                     loanDTO.setDeliveryDate(loan.getDeliveryDate());
                     loanDTO.setDeadline(loan.getDeadline());
                     loanDTO.setReturnDate(loan.getReturnDate());
+                    loanDTO.setRentalAmount(loan.getRentalAmount());
                     loanDTO.setLoanStatus(loan.getLoanStatus().name());
                     loanDTO.setClientId(loan.getClients().getClientId());
                     loanDTO.setUserId(loan.getUsers().getUserId());
@@ -84,7 +87,7 @@ public class LoanService {
         }
 
         // Valida que el cliente no tenga deudas impagas
-        if (penaltyRepository.existsByLoans_Clients_ClientIdAndPenaltyStatus(
+        if (penaltyRepository.existsByLoan_Clients_ClientIdAndPenaltyStatus(
                 client.getClientId(),
                 PenaltyService.PaymentStatus.IMPAGO
         )) {
@@ -112,7 +115,7 @@ public class LoanService {
 
         if (deadline != null && deadline.isBefore(deliveryDate)) {
             throw new IllegalArgumentException(
-                    "La fecha de devolución no puede ser anterior a la fecha límite de entrega."
+                    "La fecha límite de entrega (deadline) no puede ser anterior a la fecha actual."
             );
         }
 
@@ -136,11 +139,79 @@ public class LoanService {
                 savedLoan.getDeliveryDate(),
                 savedLoan.getDeadline(),
                 savedLoan.getReturnDate(),
+                savedLoan.getRentalAmount(),
                 savedLoan.getLoanStatus().name(),
                 client.getClientId(),
                 user.getUserId(),
                 tool.getToolId()
         );
+    }
+
+    public LoanEntity returnLoans(Long loanId) {
+
+        LoanEntity loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
+
+        // Asignar returnDate = now()
+        LocalDateTime now = LocalDateTime.now();
+        loan.setReturnDate(now);
+
+        // Se obtienen las fechas de entrega y devolucion pactada del prestamo
+        LocalDateTime delivery = loan.getDeliveryDate();
+        LocalDateTime deadline = loan.getDeadline();
+
+        // Codigo para pruebas ***
+        ToolEntity tool = loan.getTools();
+        if (tool == null) throw new RuntimeException("Tool no asociada al préstamo");
+
+        ToolCatalogEntity catalog = tool.getTool_catalogs();
+        if (catalog == null) throw new RuntimeException("Catálogo no asociado a la herramienta");
+
+        Double rentalValue = catalog.getDailyRentalValue();
+        if (rentalValue == null) throw new RuntimeException("rentalValue es null");
+
+
+        // Se obtiene el valor de arriendo diario de la herramienta desde el catalogo
+        //Double rentalValue = loan.getTools().getTool_catalogs().getDailyRentalValue();
+        double rentalAmount;
+
+        // Se calcula la cantidad de dias que duro el prestamo
+        long totalDays;
+
+        if (!now.isAfter(deadline)) {
+            // No hay retraso
+            totalDays = ChronoUnit.DAYS.between(deadline, now);
+
+            if (totalDays < 1) {
+                totalDays = 1; // El cobro minimo es de 1 dia
+            }
+
+            rentalAmount = rentalValue * totalDays;
+
+        } else {
+            // Hay retraso
+            long daysToDeadline = ChronoUnit.DAYS.between(delivery, deadline);
+
+            if (daysToDeadline < 1) {
+                daysToDeadline = 1;
+            }
+
+            rentalAmount = rentalValue * daysToDeadline;
+
+            // Calcular el monto de la multa
+        }
+
+        loan.setRentalAmount(rentalAmount);
+
+        // Se actualiza el estado del prestamo
+        loan.setLoanStatus(LoanStatus.FINALIZADO);
+
+        // Lógica: calcular días
+        // rentalAmount = rentalValue * days
+        // asignar returnDate = now()
+        // guardar loan
+
+        return loanRepository.save(loan);
     }
 
     public void deleteLoansById(Long id) {

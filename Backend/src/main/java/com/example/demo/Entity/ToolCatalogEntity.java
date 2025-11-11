@@ -44,8 +44,8 @@ public class ToolCatalogEntity {
     @Column(name = "tool_category", length = 20)
     private String toolCategory;
 
-    @Column(name = "rental_value")
-    private Double rentalValue;
+    @Column(name = "daily_rental_value")
+    private Double dailyRentalValue;
 
     @NotNull(message = "El valor de reposición es obligatorio")
     @Positive(message = "El valor de reposición debe ser mayor que 0")

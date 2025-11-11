@@ -36,7 +36,7 @@ public class ToolCatalogService {
                         catalog.getToolCatalogId(),
                         catalog.getToolName(),
                         catalog.getToolCategory(),
-                        catalog.getRentalValue(),
+                        catalog.getDailyRentalValue(),
                         catalog.getReplacementValue(),
                         catalog.getDescription(),
                         catalog.getAvailableUnits()

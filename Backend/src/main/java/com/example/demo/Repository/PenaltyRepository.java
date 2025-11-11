@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface PenaltyRepository extends JpaRepository<PenaltyEntity,Long> {
 
     // Consulta que comprueba si el cliente del id ingresado tiene deudas sin pagar
-    boolean existsByLoans_Clients_ClientIdAndPenaltyStatus(
+    boolean existsByLoan_Clients_ClientIdAndPenaltyStatus(
             Long clientId,
             PenaltyService.PaymentStatus penaltyStatus
     );

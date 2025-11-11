@@ -14,7 +14,7 @@ public class ToolCatalogDTO {
     private Long toolCatalogId;
     private String toolName;
     private String toolCategory;
-    private Double rentalValue;
+    private Double dailyRentalValue;
     private Double replacementValue;
     private String description;
     private int availableUnits;

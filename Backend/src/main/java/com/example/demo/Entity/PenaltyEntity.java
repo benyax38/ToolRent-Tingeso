@@ -43,7 +43,7 @@ public class PenaltyEntity {
     @Column(name = "penalty_state", length = 20)
     private PenaltyService.PaymentStatus penaltyStatus; //Gestion de estado
 
-    @ManyToOne
-    @JoinColumn(name = "loan_id", nullable = false)
-    private LoanEntity loans;
+    @OneToOne
+    @JoinColumn(name = "loan_id", nullable = false, unique = true)
+    private LoanEntity loan;
 }

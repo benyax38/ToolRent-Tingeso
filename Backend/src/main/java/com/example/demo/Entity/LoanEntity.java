@@ -45,8 +45,11 @@ public class LoanEntity {
     @Column(name = "loan_state", length = 20)
     private LoanService.LoanStatus loanStatus; //Gestion de estado
 
-    @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PenaltyEntity> penalties = new ArrayList<>();
+    @Column(name = "rental_amount")
+    private Double rentalAmount;
+
+    @OneToOne(mappedBy = "loan", cascade = CascadeType.ALL)
+    private PenaltyEntity penalty;
 
     @ManyToOne
     @JoinColumn(name = "client_id")

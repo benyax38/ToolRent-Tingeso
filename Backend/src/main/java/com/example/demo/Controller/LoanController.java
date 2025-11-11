@@ -2,6 +2,8 @@ package com.example.demo.Controller;
 
 import com.example.demo.DTOs.LoanResponseDTO;
 import com.example.demo.DTOs.LoanRequestDTO;
+import com.example.demo.Entity.LoanEntity;
+import com.example.demo.Mapper.LoanMapper;
 import com.example.demo.Service.LoanService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,12 @@ public class LoanController {
     public ResponseEntity<LoanResponseDTO> createLoan(@Valid @RequestBody LoanRequestDTO request) {
         LoanResponseDTO createdLoan = loanService.createLoans(request);
         return ResponseEntity.ok(createdLoan);
+    }
+
+    @PatchMapping("/return/{loanId}")
+    public ResponseEntity<LoanResponseDTO> returnLoan(@PathVariable Long loanId) {
+        LoanEntity loan = loanService.returnLoans(loanId);
+        return ResponseEntity.ok(LoanMapper.toDto(loan));
     }
 
     @DeleteMapping("/{id}")
