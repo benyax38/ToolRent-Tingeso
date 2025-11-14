@@ -13,6 +13,8 @@ import com.example.demo.Repository.ClientRepository;
 import com.example.demo.Repository.LoanRepository;
 import com.example.demo.Repository.PenaltyConfigRepository;
 import com.example.demo.Repository.PenaltyRepository;
+import com.example.demo.Repository.ToolCatalogRepository;
+import com.example.demo.Repository.ToolRepository;
 import com.example.demo.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,8 @@ public class LoanService {
     private final PenaltyRepository penaltyRepository;
     private final ToolService toolService;
     private final PenaltyConfigRepository penaltyConfigRepository;
+    private final ToolRepository toolRepository;
+    private final ToolCatalogRepository toolCatalogRepository;
 
     /* Aqui se definen los posibles estados de un prestamo
         * ACTIVO : El prestamo ha sido iniciado y aun no pasa su deadline.
@@ -234,7 +238,13 @@ public class LoanService {
 
             // Se agrega un monto de multa por daño en caso de ser necesario
             switch (damageLevel) {
-                case NINGUNO -> rentalAmount += 0.0;
+                case NINGUNO -> {
+                    rentalAmount += 0.0;
+
+                    // Actualizacion de estados
+                    tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
+                    catalog.setAvailableUnits(catalog.getAvailableUnits() + 1);
+                }
 
                 case LEVE -> {
                     double repairCharge = config.getRepairCharge();
@@ -249,6 +259,9 @@ public class LoanService {
                             .loan(loan)
                             .build();
                     penaltyRepository.save(penalty);
+
+                    // Actualizacion de estado
+                    tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
                 }
 
                 case GRAVE -> {
@@ -264,6 +277,9 @@ public class LoanService {
                             .loan(loan)
                             .build();
                     penaltyRepository.save(penalty);
+
+                    // Actualizacion de estado
+                    tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
                 }
             }
         } else {
@@ -293,6 +309,10 @@ public class LoanService {
                             .loan(loan)
                             .build();
                     penaltyRepository.save(penalty);
+
+                    // Actualizacion de estados
+                    tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
+                    catalog.setAvailableUnits(catalog.getAvailableUnits() + 1);
                 }
 
                 case LEVE -> {
@@ -309,6 +329,9 @@ public class LoanService {
                             .loan(loan)
                             .build();
                     penaltyRepository.save(penalty);
+
+                    // Actualizacion de estado
+                    tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
                 }
 
                 case GRAVE -> {
@@ -325,6 +348,9 @@ public class LoanService {
                             .loan(loan)
                             .build();
                     penaltyRepository.save(penalty);
+
+                    // Actualizacion de estado
+                    tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
                 }
             }
         }
@@ -333,6 +359,10 @@ public class LoanService {
         loan.setReturnDate(now);
         loan.setLoanStatus(LoanStatus.POR_PAGAR);
         loan.setRentalAmount(rentalAmount);
+
+        // Actualizacion de herramienta y catalogo
+        toolRepository.save(tool);
+        toolCatalogRepository.save(catalog);
 
         return loanRepository.save(loan);
     }
