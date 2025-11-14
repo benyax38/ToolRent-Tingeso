@@ -20,4 +20,7 @@ public interface LoanRepository extends JpaRepository<LoanEntity,Long> {
             LocalDateTime deadline
     );
 
+    // Cuenta los prestamos del cliente con estado "ACTIVO", "POR_PAGAR" o "VENCIDO"
+    long countByClients_ClientIdAndLoanStatusIn(Long clientId, List<LoanService.LoanStatus> statuses);
+
 }

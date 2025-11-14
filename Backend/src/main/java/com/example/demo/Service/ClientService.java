@@ -4,6 +4,8 @@ import com.example.demo.DTOs.ClientDTO;
 import com.example.demo.DTOs.ClientRequestDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Repository.ClientRepository;
+import com.example.demo.Repository.LoanRepository;
+import com.example.demo.Repository.PenaltyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +15,14 @@ import java.util.List;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+    private final LoanRepository loanRepository;
+    private final PenaltyRepository penaltyRepository;
 
     @Autowired
-    public ClientService(ClientRepository clientRepository) { this.clientRepository = clientRepository; }
+    public ClientService(ClientRepository clientRepository, LoanRepository loanRepository, PenaltyRepository penaltyRepository) { this.clientRepository = clientRepository;
+        this.loanRepository = loanRepository;
+        this.penaltyRepository = penaltyRepository;
+    }
 
     //Se definen los estados posibles de un cliente
     public enum ClientStatus {
@@ -61,6 +68,44 @@ public class ClientService {
         }
 
         return clientRepository.save(clientEntity);
+    }
+
+    public ClientEntity validateAndLoadClient(Long clientId) {
+
+        // Buscar cliente
+        ClientEntity client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        // Validar que esta activo
+        if (client.getClientState() != ClientStatus.ACTIVO) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente no está activo.");
+        }
+
+        // Validar que no tenga prestamos vencidos
+        if (loanRepository.existsByClients_ClientIdAndLoanStatus(clientId, LoanService.LoanStatus.VENCIDO)) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene préstamos vencidos.");
+        }
+
+        // Validar que no tenga multas impagas
+        if (penaltyRepository.existsByLoan_Clients_ClientIdAndPenaltyStatus(
+                clientId, PenaltyService.PaymentStatus.IMPAGO)) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene multas impagas.");
+        }
+
+        // 5. Validar máximo de 5 préstamos simultáneos
+        List<LoanService.LoanStatus> activeStatuses = List.of(
+                LoanService.LoanStatus.ACTIVO,
+                LoanService.LoanStatus.POR_PAGAR,
+                LoanService.LoanStatus.VENCIDO
+        );
+
+        long activeLoans = loanRepository.countByClients_ClientIdAndLoanStatusIn(clientId, activeStatuses);
+
+        if (activeLoans >= 5) {
+            throw new RuntimeException("El cliente ya tiene 5 préstamos simultáneos.");
+        }
+
+        return client;
     }
 
     public void deleteClientsById(Long id) {

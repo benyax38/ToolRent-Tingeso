@@ -23,20 +23,23 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class LoanService {
 
     private final LoanRepository loanRepository;
-    private final ClientRepository clientRepository;
     private final UserRepository userRepository;
     private final PenaltyRepository penaltyRepository;
     private final ToolService toolService;
     private final PenaltyConfigRepository penaltyConfigRepository;
     private final ToolRepository toolRepository;
     private final ToolCatalogRepository toolCatalogRepository;
+    private final ClientService clientService;
+    private final ClientRepository clientRepository;
 
     /* Aqui se definen los posibles estados de un prestamo
         * ACTIVO : El prestamo ha sido iniciado y aun no pasa su deadline.
@@ -67,13 +70,34 @@ public class LoanService {
     public void checkAndUpdateLoanStatus() {
 
         // Buscar prestamos activos que ya expiraron
-        List<LoanEntity> overdue = loanRepository.findByLoanStatusAndReturnDateIsNullAndDeadlineBefore(LoanStatus.ACTIVO, LocalDateTime.now());
+        List<LoanEntity> overdue = loanRepository.findByLoanStatusAndReturnDateIsNullAndDeadlineBefore(
+                LoanStatus.ACTIVO,
+                LocalDateTime.now()
+        );
 
-        // Actualiza el estado de los prestamos
-        overdue.forEach(loan -> loan.setLoanStatus(LoanStatus.VENCIDO));
+        if (overdue.isEmpty()) return;
 
-        // Guarda en la base de datos
+        Set<ClientEntity> clientsToRestrict = new HashSet<>();
+
+        // Actualizaciones
+        overdue.forEach(loan -> {
+
+            // Cambia estado del prestamo
+            loan.setLoanStatus(LoanStatus.VENCIDO);
+
+            // Cambia estado del cliente si aun esta activo
+            ClientEntity client = loan.getClients();
+            if (client.getClientState() == ClientService.ClientStatus.ACTIVO) {
+                client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
+                clientsToRestrict.add(client); // evita duplicados
+            }
+        });
+
+        // Guarda prestamos modificados
         loanRepository.saveAll(overdue);
+
+        // Guarda clientes modificados
+        clientRepository.saveAll(clientsToRestrict);
     }
 
     public List<LoanResponseDTO> getAllLoans() {
@@ -98,27 +122,15 @@ public class LoanService {
     @Transactional
     public LoanResponseDTO createLoans(LoanRequestDTO request) {
 
-        // Buscar cliente
-        ClientEntity client = clientRepository.findById(request.getClientId())
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        /* Validaciones y movimientos desde ClientService
+         * 1. Buscar cliente
+         * 2. Validar que el cliente tiene estado DISPONIBLE
+         * 3. Validar que el cliente no tenga prestamos vencidos
+         * 4. Validar que el cliente no tenga multas impagas
+         * 5. Validar maximo de 5 prestamos simultaneos
+         */
+        ClientEntity client = clientService.validateAndLoadClient(request.getClientId());
 
-        // Validar que el cliente esta activo
-        if(client.getClientState() != ClientService.ClientStatus.ACTIVO) {
-            throw new RuntimeException("No se puede crear el préstamo: el cliente no tiene estado activo.");
-        }
-
-        // Comprueba que el cliente no tenga prestamos vencidos
-        if(loanRepository.existsByClients_ClientIdAndLoanStatus(client.getClientId(), LoanStatus.VENCIDO)) {
-            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene préstamos vencidos.");
-        }
-
-        // Valida que el cliente no tenga deudas impagas
-        if (penaltyRepository.existsByLoan_Clients_ClientIdAndPenaltyStatus(
-                client.getClientId(),
-                PenaltyService.PaymentStatus.IMPAGO
-        )) {
-            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene multas impagas.");
-        }
 
         // Buscar usuario
         UserEntity user = userRepository.findById(request.getUserId())
@@ -185,6 +197,9 @@ public class LoanService {
         // Se obtienen las fechas de entrega y devolucion pactada del prestamo
         LocalDateTime delivery = loan.getDeliveryDate();
         LocalDateTime deadline = loan.getDeadline();
+
+        // Se obtiene el cliente asociado al prestamo
+        ClientEntity client = loan.getClients();
 
         // Se obtiene la entidad tool asociada al prestamo
         ToolEntity tool = loan.getTools();
@@ -262,6 +277,7 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
 
                 case GRAVE -> {
@@ -280,6 +296,7 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
             }
         } else {
@@ -313,6 +330,7 @@ public class LoanService {
                     // Actualizacion de estados
                     tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
                     catalog.setAvailableUnits(catalog.getAvailableUnits() + 1);
+                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
 
                 case LEVE -> {
@@ -332,6 +350,7 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
 
                 case GRAVE -> {
@@ -351,6 +370,7 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
             }
         }
@@ -360,9 +380,10 @@ public class LoanService {
         loan.setLoanStatus(LoanStatus.POR_PAGAR);
         loan.setRentalAmount(rentalAmount);
 
-        // Actualizacion de herramienta y catalogo
+        // Actualizacion de herramienta, catalogo y cliente
         toolRepository.save(tool);
         toolCatalogRepository.save(catalog);
+        clientRepository.save(client);
 
         return loanRepository.save(loan);
     }
