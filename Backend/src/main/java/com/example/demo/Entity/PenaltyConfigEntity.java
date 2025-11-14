@@ -23,7 +23,7 @@ public class PenaltyConfigEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long PenaltyConfigId;
+    private Long penaltyConfigId;
 
     private Double dailyFineRate;
 

@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.PenaltyDTO;
 import com.example.demo.Entity.PenaltyEntity;
 import com.example.demo.Service.PenaltyService;
 import jakarta.validation.Valid;
@@ -19,9 +20,9 @@ public class PenaltyController {
     public PenaltyController(PenaltyService penaltyService) { this.penaltyService = penaltyService; }
 
     @GetMapping
-    public ResponseEntity<List<PenaltyEntity>> getAllPenalty() {
-        List<PenaltyEntity> penaltyList = penaltyService.getAllPenalties();
-        return ResponseEntity.ok(penaltyList);
+    public ResponseEntity<List<PenaltyDTO>> getAllPenalty() {
+        List<PenaltyDTO> penalties = penaltyService.getAllPenaltiesDTO();
+        return ResponseEntity.ok(penalties);
     }
 
     @PostMapping

@@ -1,7 +1,8 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.PenaltyDTO;
 import com.example.demo.Entity.PenaltyEntity;
-import com.example.demo.Repository.LoanRepository;
+import com.example.demo.Mapper.PenaltyMapper;
 import com.example.demo.Repository.PenaltyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,10 @@ import java.util.List;
 public class PenaltyService {
 
     private final PenaltyRepository penaltyRepository;
-    private final LoanRepository loanRepository;
 
     @Autowired
-    public PenaltyService(PenaltyRepository penaltyRepository, LoanRepository loanRepository) { this.penaltyRepository = penaltyRepository;
-        this.loanRepository = loanRepository;
+    public PenaltyService(PenaltyRepository penaltyRepository) {
+        this.penaltyRepository = penaltyRepository;
     }
 
     public enum PaymentStatus {
@@ -24,8 +24,12 @@ public class PenaltyService {
         IMPAGO
     }
 
-    public List<PenaltyEntity> getAllPenalties() {
-        return penaltyRepository.findAll();
+    public List<PenaltyDTO> getAllPenaltiesDTO() {
+
+        return penaltyRepository.findAll()
+                .stream()
+                .map(PenaltyMapper::toDto)
+                .toList();
     }
 
     public PenaltyEntity createPenalties(PenaltyEntity penalty) {
