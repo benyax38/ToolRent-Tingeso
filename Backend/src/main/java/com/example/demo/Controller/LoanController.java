@@ -2,6 +2,7 @@ package com.example.demo.Controller;
 
 import com.example.demo.DTOs.LoanResponseDTO;
 import com.example.demo.DTOs.LoanRequestDTO;
+import com.example.demo.DTOs.PaymentRequestDTO;
 import com.example.demo.DTOs.ReturnLoanRequestDTO;
 import com.example.demo.Entity.LoanEntity;
 import com.example.demo.Mapper.LoanMapper;
@@ -41,6 +42,15 @@ public class LoanController {
     ) {
         LoanEntity loan = loanService.returnLoans(loanId, body.getDamageLevel());
         return ResponseEntity.ok(LoanMapper.toDto(loan));
+    }
+
+    @PatchMapping("pay/{loanId}")
+    public ResponseEntity<?> payLoan(
+            @PathVariable Long loanId,
+            @RequestBody PaymentRequestDTO request
+    ) {
+        LoanEntity updated = loanService.payLoans(loanId, request);
+        return ResponseEntity.ok("Pago Registrado. Préstamo #" + updated.getLoanId() + " pagado correctamente.");
     }
 
     @DeleteMapping("/{id}")

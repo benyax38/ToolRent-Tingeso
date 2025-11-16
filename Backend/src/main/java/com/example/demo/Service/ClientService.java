@@ -81,9 +81,9 @@ public class ClientService {
             throw new RuntimeException("No se puede crear el préstamo: el cliente no está activo.");
         }
 
-        // Validar que no tenga prestamos vencidos
-        if (loanRepository.existsByClients_ClientIdAndLoanStatus(clientId, LoanService.LoanStatus.VENCIDO)) {
-            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene préstamos vencidos.");
+        // Validar que no tenga prestamos vencidos o por pagar
+        if (loanRepository.existsByClients_ClientIdAndLoanStatusIn(clientId, List.of(LoanService.LoanStatus.VENCIDO, LoanService.LoanStatus.POR_PAGAR))) {
+            throw new RuntimeException("No se puede crear el préstamo: el cliente tiene préstamos vencidos o por pagar.");
         }
 
         // Validar que no tenga multas impagas

@@ -12,7 +12,7 @@ import java.util.List;
 public interface LoanRepository extends JpaRepository<LoanEntity,Long> {
 
     // Consulta si es que el cliente asociado al id tiene prestamos vencidos
-    boolean existsByClients_ClientIdAndLoanStatus(Long clientId, LoanService.LoanStatus loanStatus);
+    boolean existsByClients_ClientIdAndLoanStatusIn(Long clientId, List<LoanService.LoanStatus> statuses);
 
     // Busca los prestamos con el estado ingresado que aún no tienen devolucion y que ya paso su fecha limite de entrega
     List<LoanEntity> findByLoanStatusAndReturnDateIsNullAndDeadlineBefore(

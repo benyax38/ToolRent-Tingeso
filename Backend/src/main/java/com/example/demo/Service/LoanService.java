@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import com.example.demo.DTOs.LoanResponseDTO;
 import com.example.demo.DTOs.LoanRequestDTO;
+import com.example.demo.DTOs.PaymentRequestDTO;
 import com.example.demo.Entity.ClientEntity;
 import com.example.demo.Entity.LoanEntity;
 import com.example.demo.Entity.PenaltyConfigEntity;
@@ -277,7 +278,6 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
-                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
 
                 case GRAVE -> {
@@ -296,7 +296,6 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
-                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
             }
         } else {
@@ -330,7 +329,6 @@ public class LoanService {
                     // Actualizacion de estados
                     tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
                     catalog.setAvailableUnits(catalog.getAvailableUnits() + 1);
-                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
 
                 case LEVE -> {
@@ -350,7 +348,6 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
-                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
 
                 case GRAVE -> {
@@ -370,10 +367,12 @@ public class LoanService {
 
                     // Actualizacion de estado
                     tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
-                    client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
                 }
             }
         }
+
+        // En todos lo casos, se marca el cliente como restringido
+        client.setClientState(ClientService.ClientStatus.RESTRINGIDO);
 
         // Actualizacion del prestamo en la base de datos
         loan.setReturnDate(now);
@@ -384,6 +383,60 @@ public class LoanService {
         toolRepository.save(tool);
         toolCatalogRepository.save(catalog);
         clientRepository.save(client);
+
+        return loanRepository.save(loan);
+    }
+
+    @Transactional
+    public LoanEntity payLoans(Long loanId, PaymentRequestDTO request) {
+
+        // Busca el prestamo por pagar
+        LoanEntity loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
+
+        // Busca los casos en que las herramientas aun no han sido marcadas como devueltas
+        if (loan.getLoanStatus() == LoanStatus.ACTIVO || loan.getLoanStatus() == LoanStatus.VENCIDO) {
+            throw new RuntimeException("Primero debe marcar la devolución de herramientas.");
+        }
+
+        // Busca cuando el prestamo ya ha sido pagado
+        if (loan.getLoanStatus() == LoanStatus.FINALIZADO) {
+            throw new RuntimeException("El préstamo no tiene pagos pendientes");
+        }
+
+        // Logica del pago
+        Double totalDebt = loan.getRentalAmount();
+        Double amountPaid = request.getAmountPaid();
+
+        // Opcion 1: Pago insuficiente
+        if (amountPaid.compareTo(totalDebt) < 0) {
+            throw new RuntimeException("El monto pagado es insuficiente. Total a pagar: " + totalDebt);
+        }
+
+        // Comprobar si el prestamo tiene multa asociada
+        PenaltyEntity penalty = loan.getPenalty();
+
+        // Si tiene multa, marcarla como pagada
+        if (penalty != null) {
+            penalty.setPenaltyStatus(PenaltyService.PaymentStatus.PAGADO);
+            penaltyRepository.save(penalty);
+        }
+
+        // Marcar prestamo como terminado
+        loan.setLoanStatus(LoanStatus.FINALIZADO);
+
+        // Revisa si el cliente tiene otros prestamos vencidos o por pagar
+        boolean hasOtherDebts = loanRepository.existsByClients_ClientIdAndLoanStatusIn(
+                loan.getClients().getClientId(),
+                List.of(LoanStatus.VENCIDO, LoanStatus.POR_PAGAR)
+        );
+
+        if (!hasOtherDebts) {
+            // cambia estado cliente a ACTIVO
+            ClientEntity client = loan.getClients();
+            client.setClientState(ClientService.ClientStatus.ACTIVO);
+            clientRepository.save(client);
+        }
 
         return loanRepository.save(loan);
     }
