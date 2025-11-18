@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import com.example.demo.DTOs.ToolDTO;
+import com.example.demo.DTOs.ToolEvaluationDTO;
 import com.example.demo.Entity.ToolEntity;
 import com.example.demo.Service.ToolService;
 import jakarta.validation.Valid;
@@ -29,6 +30,15 @@ public class ToolController {
     public ResponseEntity<ToolEntity> createTool(@Valid @RequestBody ToolEntity tool) {
         ToolEntity createdTool = toolService.createTools(tool);
         return ResponseEntity.ok(createdTool);
+    }
+
+    @PostMapping("/evaluation/{toolId}")
+    public ResponseEntity<?> evaluateTool(
+            @PathVariable Long toolId,
+            @RequestBody ToolEvaluationDTO request
+    ) {
+        ToolEntity updated = toolService.evaluateTools(toolId,request);
+        return ResponseEntity.ok("La herramienta #" + toolId + " ha sido evaluada correctamente. Nuevo estado: " + updated.getCurrentToolState());
     }
 
     @DeleteMapping("/{id}")
