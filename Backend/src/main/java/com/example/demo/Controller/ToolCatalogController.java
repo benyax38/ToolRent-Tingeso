@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTOs.ToolCatalogAddUnitsDTO;
 import com.example.demo.DTOs.ToolCatalogDTO;
 import com.example.demo.Entity.ToolCatalogEntity;
 import com.example.demo.Entity.UserEntity;
@@ -54,6 +55,15 @@ public class ToolCatalogController {
 
         ToolCatalogEntity createdCatalog = toolCatalogService.createCatalogs(catalog, user);
         return ResponseEntity.ok(createdCatalog);
+    }
+
+    @PostMapping("/{catalogId}/add-units")
+    public ResponseEntity<ToolCatalogDTO> addUnitsToCatalog(
+            @PathVariable Long catalogId,
+            @RequestBody ToolCatalogAddUnitsDTO dto
+    ) {
+        ToolCatalogDTO catalog = toolCatalogService.addUnitsToCatalog(catalogId, dto);
+        return ResponseEntity.ok(catalog);
     }
 
     @DeleteMapping("/{id}")

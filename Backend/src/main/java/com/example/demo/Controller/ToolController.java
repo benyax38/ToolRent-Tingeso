@@ -17,8 +17,10 @@ import java.util.List;
 public class ToolController {
 
     private final ToolService toolService;
+
     @Autowired
-    public ToolController(ToolService toolService) { this.toolService = toolService; }
+    public ToolController(ToolService toolService) { this.toolService = toolService;
+    }
 
     @GetMapping
     public ResponseEntity<List<ToolDTO>> getAllTool() {
