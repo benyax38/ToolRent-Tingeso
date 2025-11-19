@@ -32,12 +32,13 @@ public class ToolController {
         return ResponseEntity.ok(createdTool);
     }
 
-    @PostMapping("/evaluation/{toolId}")
+    @PostMapping("/evaluation/{toolId}/user/{userId}")
     public ResponseEntity<?> evaluateTool(
             @PathVariable Long toolId,
+            @PathVariable Long userId,
             @RequestBody ToolEvaluationDTO request
     ) {
-        ToolEntity updated = toolService.evaluateTools(toolId,request);
+        ToolEntity updated = toolService.evaluateTools(toolId, userId, request);
         return ResponseEntity.ok("La herramienta #" + toolId + " ha sido evaluada correctamente. Nuevo estado: " + updated.getCurrentToolState());
     }
 

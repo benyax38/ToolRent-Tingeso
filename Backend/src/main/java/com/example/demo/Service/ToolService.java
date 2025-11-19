@@ -1,13 +1,16 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.KardexCreateDTO;
 import com.example.demo.DTOs.ToolDTO;
 import com.example.demo.DTOs.ToolEvaluationDTO;
 import com.example.demo.Entity.LoanEntity;
 import com.example.demo.Entity.ToolCatalogEntity;
 import com.example.demo.Entity.ToolEntity;
+import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.LoanRepository;
 import com.example.demo.Repository.ToolCatalogRepository;
 import com.example.demo.Repository.ToolRepository;
+import com.example.demo.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +24,16 @@ public class ToolService {
     private final ToolRepository toolRepository;
     private final ToolCatalogRepository toolCatalogRepository;
     private final LoanRepository loanRepository;
+    private final KardexService kardexService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ToolService(ToolRepository toolRepository, ToolCatalogRepository toolCatalogRepository, LoanRepository loanRepository) {
+    public ToolService(ToolRepository toolRepository, ToolCatalogRepository toolCatalogRepository, LoanRepository loanRepository, KardexService kardexService, UserRepository userRepository) {
         this.toolRepository = toolRepository;
         this.toolCatalogRepository = toolCatalogRepository;
         this.loanRepository = loanRepository;
+        this.kardexService = kardexService;
+        this.userRepository = userRepository;
     }
 
     //Se definen los estados posibles de una herramienta
@@ -79,7 +86,7 @@ public class ToolService {
     }
 
     @Transactional
-    public ToolEntity evaluateTools(Long toolId, ToolEvaluationDTO dto) {
+    public ToolEntity evaluateTools(Long toolId, Long userId, ToolEvaluationDTO dto) {
 
         // Comprueba si existe la herramienta
         ToolEntity tool = toolRepository.findById(toolId)
@@ -89,6 +96,10 @@ public class ToolService {
         if (tool.getCurrentToolState() != ToolStatus.EN_REPARACION) {
             throw new RuntimeException("La herramienta no tiene estado EN_REPARACION");
         }
+
+        // Comprueba que existe el usuario
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Comprueba que existe el prestamo
         LoanEntity loan = loanRepository.findById(dto.getLoanId())
@@ -103,15 +114,43 @@ public class ToolService {
         ToolCatalogEntity catalog = tool.getTool_catalogs();
 
         switch (dto.getDecision()) {
-            case DAR_DE_BAJA:
+            case DAR_DE_BAJA -> {
                 tool.setCurrentToolState(ToolStatus.DADA_DE_BAJA);
-                break;
 
-            case REPARADA:
+                // Registrar movimiento en kardex
+                kardexService.registerMovement(
+                        KardexCreateDTO.builder()
+                                .type(KardexService.KardexMovementType.BAJA)
+                                .affectedAmount(1)
+                                .details("Herramienta dada de baja tras evaluación")
+                                .toolId(tool.getToolId())
+                                .catalogId(catalog.getToolCatalogId())
+                                .loanId(loan.getLoanId())
+                                .userId(user.getUserId())
+                                .clientId(loan.getClients().getClientId())
+                                .build()
+                );
+            }
+
+            case REPARADA -> {
                 tool.setCurrentToolState(ToolStatus.DISPONIBLE);
                 catalog.setAvailableUnits(catalog.getAvailableUnits() + 1);
                 toolCatalogRepository.save(catalog);
-                break;
+
+                // Registrar movimiento en kardex
+                kardexService.registerMovement(
+                        KardexCreateDTO.builder()
+                                .type(KardexService.KardexMovementType.REPARACION)
+                                .affectedAmount(1)
+                                .details("Herramienta reparada y devuelta al inventario")
+                                .toolId(tool.getToolId())
+                                .catalogId(catalog.getToolCatalogId())
+                                .loanId(loan.getLoanId())
+                                .userId(user.getUserId())
+                                .clientId(loan.getClients().getClientId())
+                                .build()
+                );
+            }
         }
 
         return toolRepository.save(tool);

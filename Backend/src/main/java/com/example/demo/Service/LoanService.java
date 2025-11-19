@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTOs.KardexCreateDTO;
 import com.example.demo.DTOs.LoanResponseDTO;
 import com.example.demo.DTOs.LoanRequestDTO;
 import com.example.demo.DTOs.PaymentRequestDTO;
@@ -41,6 +42,7 @@ public class LoanService {
     private final ToolCatalogRepository toolCatalogRepository;
     private final ClientService clientService;
     private final ClientRepository clientRepository;
+    private final KardexService kardexService;
 
     /* Aqui se definen los posibles estados de un prestamo
         * ACTIVO : El prestamo ha sido iniciado y aun no pasa su deadline.
@@ -147,6 +149,7 @@ public class LoanService {
             * 7. Guarda los cambios
         */
         ToolEntity tool = toolService.validateAndLoanTool(request.getToolId());
+        ToolCatalogEntity catalog = tool.getTool_catalogs();
 
         // Validación --> fecha limite de retorno (deadline) no puede ser anterior a fecha de entrega (deliveryDate)
         LocalDateTime deliveryDate = LocalDateTime.now();
@@ -172,6 +175,20 @@ public class LoanService {
         // Guardar en la base de datos
         LoanEntity savedLoan = loanRepository.save(loan);
 
+        // Registrar movimiento en kardex
+        KardexCreateDTO dto = KardexCreateDTO.builder()
+                .type(KardexService.KardexMovementType.PRESTAMO)
+                .affectedAmount(1)
+                .details("Herramienta prestada")
+                .clientId(client.getClientId())
+                .loanId(savedLoan.getLoanId())
+                .toolId(tool.getToolId())
+                .catalogId(catalog.getToolCatalogId())
+                .userId(user.getUserId())
+                .build();
+
+        kardexService.registerMovement(dto);
+
         // Retornar un DTO como respuesta
         return new LoanResponseDTO(
                 savedLoan.getLoanId(),
@@ -186,11 +203,15 @@ public class LoanService {
         );
     }
 
-    public LoanEntity returnLoans(Long loanId, String damageLevelStr) {
+    public LoanEntity returnLoans(Long loanId, Long userId, String damageLevelStr) {
 
         // Busca el prestamo con el id ingresado
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
+
+        // Buscar el usuario con el id ingresado
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Se usara esta variable para returnDate = now()
         LocalDateTime now = LocalDateTime.now();
@@ -383,6 +404,34 @@ public class LoanService {
         toolRepository.save(tool);
         toolCatalogRepository.save(catalog);
         clientRepository.save(client);
+
+        // Registrar movimiento en el kardex
+        String kardexDetails = switch (damageLevel) {
+            case NINGUNO -> late ?
+                    "Devolución con atraso"
+                    : "Devolución sin daños";
+
+            case LEVE -> late ?
+                    "Devolución con atraso y daño leve"
+                    : "Devolución con daño leve";
+
+            case GRAVE -> late ?
+                    "Devolución con atraso y daño grave"
+                    : "Devolución con daño grave";
+        };
+
+        KardexCreateDTO dto = KardexCreateDTO.builder()
+                .type(KardexService.KardexMovementType.DEVOLUCION)
+                .affectedAmount(1)
+                .details(kardexDetails)
+                .clientId(client.getClientId())
+                .loanId(loan.getLoanId())
+                .toolId(tool.getToolId())
+                .catalogId(catalog.getToolCatalogId())
+                .userId(user.getUserId())
+                .build();
+
+        kardexService.registerMovement(dto);
 
         return loanRepository.save(loan);
     }

@@ -35,12 +35,13 @@ public class LoanController {
         return ResponseEntity.ok(createdLoan);
     }
 
-    @PatchMapping("/return/{loanId}")
+    @PatchMapping("/return/{loanId}/user/{userId}")
     public ResponseEntity<LoanResponseDTO> returnLoan(
             @PathVariable Long loanId,
+            @PathVariable Long userId,
             @RequestBody ReturnLoanRequestDTO body
     ) {
-        LoanEntity loan = loanService.returnLoans(loanId, body.getDamageLevel());
+        LoanEntity loan = loanService.returnLoans(loanId, userId, body.getDamageLevel());
         return ResponseEntity.ok(LoanMapper.toDto(loan));
     }
 

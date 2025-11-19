@@ -16,4 +16,11 @@ public class KardexDTO {
     private LocalDateTime movementDate;
     private int affectedAmount;
     private String details;
+
+    // Relaciones
+    private Long clientId;
+    private Long loanId;
+    private Long toolId;
+    private Long catalogId;
+    private Long userId;
 }
