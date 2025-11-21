@@ -3,8 +3,9 @@ import { getRole } from './components/auth/auth';
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
-import NotFound from "./components/NotFound/NotFound";
+import NotFound from "./components/notFound/NotFound";
 import Home from "./components/home/Home";
+import Roles from "./components/options/roles/Roles"
 import Unauthorized from "./components/home/Unauthorized";
 import ToolManagement from "./components/options/tools/ToolManagement";
 import SearchTool from "./components/options/tools/searchTool";
@@ -36,6 +37,7 @@ function App() {
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
         <Route path="/home" element={<Home />} />
+        <Route path="/roles" element={<Roles />} />
         <Route path="/toolmng" element={<ToolManagement />} />
         <Route path="/searchTool" element={<SearchTool />} />
         <Route path="/pruebas" element={<Pruebas />} />
