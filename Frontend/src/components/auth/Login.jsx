@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "./authService";
-import './Login.css';
 
 export default function Login() {
 
@@ -31,52 +30,71 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      window.location.href = "/home"; // o usar navigate de react-router
+      navigate("/home"); // o usar navigate de react-router
 
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const goToRegister = () => {
-    navigate("/register");
-  };
-
   return (
-    <div className="login-container">
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleLogin}>
-        <div className="form-group">
-          <label>RUT</label>
-          <input
-            type="text"
-            placeholder="RUT"
-            value={userRut}
-            onChange={(e) => setUserRut(e.target.value)}
-            required
-          />
-        </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Iniciar Sesión
+        </h2>
 
-        <div className="form-group">
-          <label>Contraseña</label>
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={userPassword}
-            onChange={(e) => setUserPassword(e.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={handleLogin}>
 
-        {error && <p style={{ color: "red"}}>{error}</p>}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb.1">
+              RUT
+            </label>
+            <input
+              type="text"
+              placeholder="RUT"
+              value={userRut}
+              onChange={(e) => setUserRut(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-black bg-white focus:ring focus:ring-blue-200 outline-none"
+            />
+          </div>
 
-        <div className="button-group">
-          <button type="submit" className="btn login-btn">Iniciar Sesión</button>
-          <button type="button" className="btn register-btn" onClick={goToRegister}>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-1">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={userPassword}
+              onChange={(e) => setUserPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-black bg-white focus:ring focus:ring-blue-200 outline-none"
+            />
+          </div>
+
+          {error && (
+            <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition mb-3"
+          >
+            Iniciar Sesión
+          </button>
+
+          <button
+            type="button"
+            className="w-full bg-gray-200 text-gray-700 py-2 rounded-md hover:bg-gray-300 transition"
+            onClick={() => navigate("/register")}
+          >
             Registrarse
           </button>
-        </div>
-      </form>
+
+        </form>
+      </div>
     </div>
   );
 }

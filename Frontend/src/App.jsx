@@ -1,4 +1,3 @@
-import './App.css'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { getRole } from './components/auth/auth';
 
@@ -7,8 +6,10 @@ import Register from "./components/auth/Register";
 import NotFound from "./components/NotFound/NotFound";
 import Home from "./components/home/Home";
 import Unauthorized from "./components/home/Unauthorized";
-import ToolManagement from './components/options/tools/ToolManagement';
-import SearchTool from './components/options/tools/searchTool';
+import ToolManagement from "./components/options/tools/ToolManagement";
+import SearchTool from "./components/options/tools/searchTool";
+import Pruebas from "./components/options/tools/pruebas";
+import Test from "./components/options/tools/test";
 
 /*
   * Este es el componente raíz de la aplicación.
@@ -37,6 +38,8 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/toolmng" element={<ToolManagement />} />
         <Route path="/searchTool" element={<SearchTool />} />
+        <Route path="/pruebas" element={<Pruebas />} />
+        <Route path="/test" element={<Test />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound/>} />
       </Routes>
