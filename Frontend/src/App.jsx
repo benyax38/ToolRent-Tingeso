@@ -7,12 +7,11 @@ import NotFound from "./components/notFound/NotFound";
 import Home from "./components/home/Home";
 import Roles from "./components/options/roles/Roles"
 import Catalog from "./components/options/catalog/Catalog";
-import Users from './components/options/users/Users';
+import Users from "./components/options/users/Users";
+import Tools from "./components/options/tools/Tools";
+import Clients from "./components/options/clients/Clients";
+import Kardex from './components/options/kardex/Kardex';
 import Unauthorized from "./components/home/Unauthorized";
-import ToolManagement from "./components/options/tools/ToolManagement";
-import SearchTool from "./components/options/tools/searchTool";
-import Pruebas from "./components/options/tools/pruebas";
-import Test from "./components/options/tools/test";
 
 /*
   * Este es el componente raíz de la aplicación.
@@ -42,10 +41,9 @@ function App() {
         <Route path="/roles" element={<Roles />} />
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/toolmng" element={<ToolManagement />} />
-        <Route path="/searchTool" element={<SearchTool />} />
-        <Route path="/pruebas" element={<Pruebas />} />
-        <Route path="/test" element={<Test />} />
+        <Route path="/tools" element={<Tools />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/kardex" element={<Kardex />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound/>} />
       </Routes>

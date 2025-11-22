@@ -23,19 +23,19 @@ const AdminMenu = () => {
                 Catálogo de Herramientas
             </button>
 
-            <button onClick={() => navigate("/searchTool")} className={btnClass}>
+            <button onClick={() => navigate("/tools")} className={btnClass}>
                 Manejo de herramientas por unidad
             </button>
 
-            <button onClick={() => navigate("/empleados")} className={btnClass}>
+            <button onClick={() => navigate("/clients")} className={btnClass}>
                 Gestión de clientes
             </button>
 
-            <button onClick={() => navigate("/reportes")} className={btnClass}>
+            <button onClick={() => navigate("/kardex")} className={btnClass}>
                 Ver Kardex
             </button>
 
-            <button onClick={() => navigate("/reportes")} className={btnClass}>
+            <button onClick={() => navigate("/searchTool")} className={btnClass}>
                 Gestión de préstamos
             </button>
 
