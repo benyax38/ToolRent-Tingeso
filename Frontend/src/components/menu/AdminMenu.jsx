@@ -11,24 +11,40 @@ const AdminMenu = () => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
             
-            <button onClick={() => navigate("/toolmng")} className={btnClass}>
-                Gestionar Herramientas
+            <button onClick={() => navigate("/roles")} className={btnClass}>
+                Gestión de roles
+            </button>
+
+            <button onClick={() => navigate("/users")} className={btnClass}>
+                Gestión de usuarios
+            </button>
+
+            <button onClick={() => navigate("/catalog")} className={btnClass}>
+                Catálogo de Herramientas
             </button>
 
             <button onClick={() => navigate("/searchTool")} className={btnClass}>
-                Buscar herramientas
+                Manejo de herramientas por unidad
             </button>
 
             <button onClick={() => navigate("/empleados")} className={btnClass}>
-                Gestionar Empleados
+                Gestión de clientes
             </button>
 
             <button onClick={() => navigate("/reportes")} className={btnClass}>
-                Reportes
+                Ver Kardex
             </button>
 
-            <button onClick={() => navigate("/roles")} className={btnClass}>
-                Gestión de Roles
+            <button onClick={() => navigate("/reportes")} className={btnClass}>
+                Gestión de préstamos
+            </button>
+
+            <button onClick={() => navigate("/reportes")} className={btnClass}>
+                Gestión de multas
+            </button>
+
+            <button onClick={() => navigate("/reportes")} className={btnClass}>
+                Gestión de tarifas
             </button>
         </div>
     );

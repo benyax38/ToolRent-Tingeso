@@ -6,6 +6,8 @@ import Register from "./components/auth/Register";
 import NotFound from "./components/notFound/NotFound";
 import Home from "./components/home/Home";
 import Roles from "./components/options/roles/Roles"
+import Catalog from "./components/options/catalog/Catalog";
+import Users from './components/options/users/Users';
 import Unauthorized from "./components/home/Unauthorized";
 import ToolManagement from "./components/options/tools/ToolManagement";
 import SearchTool from "./components/options/tools/searchTool";
@@ -38,6 +40,8 @@ function App() {
         <Route path="/register" element={<Register/>} />
         <Route path="/home" element={<Home />} />
         <Route path="/roles" element={<Roles />} />
+        <Route path="/catalog" element={<Catalog />} />
+        <Route path="/users" element={<Users />} />
         <Route path="/toolmng" element={<ToolManagement />} />
         <Route path="/searchTool" element={<SearchTool />} />
         <Route path="/pruebas" element={<Pruebas />} />
