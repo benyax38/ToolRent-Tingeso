@@ -11,6 +11,9 @@ import Users from "./components/options/users/Users";
 import Tools from "./components/options/tools/Tools";
 import Clients from "./components/options/clients/Clients";
 import Kardex from './components/options/kardex/Kardex';
+import Loans from './components/options/loans/Loans';
+import Penalties from './components/options/penalties/Penalties';
+import Rates from './components/options/rates/PenaltyConfig';
 import Unauthorized from "./components/home/Unauthorized";
 
 /*
@@ -44,6 +47,9 @@ function App() {
         <Route path="/tools" element={<Tools />} />
         <Route path="/clients" element={<Clients />} />
         <Route path="/kardex" element={<Kardex />} />
+        <Route path="/loans" element={<Loans />} />
+        <Route path="/penalties" element={<Penalties />} />
+        <Route path="/rates" element={<Rates />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound/>} />
       </Routes>

@@ -35,15 +35,15 @@ const AdminMenu = () => {
                 Ver Kardex
             </button>
 
-            <button onClick={() => navigate("/searchTool")} className={btnClass}>
+            <button onClick={() => navigate("/loans")} className={btnClass}>
                 Gestión de préstamos
             </button>
 
-            <button onClick={() => navigate("/reportes")} className={btnClass}>
+            <button onClick={() => navigate("/penalties")} className={btnClass}>
                 Gestión de multas
             </button>
 
-            <button onClick={() => navigate("/reportes")} className={btnClass}>
+            <button onClick={() => navigate("/rates")} className={btnClass}>
                 Gestión de tarifas
             </button>
         </div>
