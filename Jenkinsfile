@@ -6,7 +6,6 @@ pipeline {
     stages{
         stage('Build maven'){
             steps{
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/benyax38/ToolRent-Tingeso.git']])
                 bat 'mvn clean package'
             }
         }
