@@ -6,7 +6,9 @@ pipeline {
     stages{
         stage('Build maven'){
             steps{
-                sh 'mvn clean package'
+                dir('backend'){
+                    sh 'mvn clean package'
+                }
             }
         }
 
