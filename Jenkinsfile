@@ -6,20 +6,20 @@ pipeline {
     stages{
         stage('Build maven'){
             steps{
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                bat 'mvn test'
+                sh 'mvn test'
             }
         }
 
         stage('Build docker image'){
             steps{
                 script{
-                    bat 'docker build -t benyax38/toolrent-repo:latest .'
+                    sh 'docker build -t benyax38/toolrent-repo:latest .'
                 }
             }
         }
@@ -28,9 +28,9 @@ pipeline {
             steps{
                 script{
                     withCredentials([string(credentialsId: 'dhpswid', variable: 'dhpsw')]) {
-                        bat 'docker login -u benyax38 -p %dhpsw%'
+                        sh 'docker login -u benyax38 -p %dhpsw%'
                     }
-                    bat 'docker push benyax38/toolrent-repo:latest'
+                    sh 'docker push benyax38/toolrent-repo:latest'
                 }
             }
         }
