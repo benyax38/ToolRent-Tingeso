@@ -96,7 +96,7 @@ export default function Roles() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-xl shadow-xl w-80">
                         <h2 className="text-xl font-bold mb-4 text-center">Nuevo Rol</h2>
 
