@@ -7,6 +7,7 @@ export default function Catalog(){
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    // Variables para agregar herramientas
     const [showNewToolModal, setShowNewToolModal] = useState(false);
     const [showAddUnitsModal, setShowAddUnitsModal] = useState(false);
     const [selectedCatalogId, setSelectedCatalogId] = useState(null);
@@ -22,10 +23,15 @@ export default function Catalog(){
 
     const [unitsToAdd, setUnitsToAdd] = useState("");
 
+    // Se obtiene el id de usuario desde el login
     const user = JSON.parse(localStorage.getItem("user"));
     const userId = user?.userId;
 
     console.log("User ID:", userId);
+
+    // Variables para filtros
+    const [searchId, setSearchId] = useState("");
+    const [searchName, setSearchName] = useState("");
 
     const navigate = useNavigate();
 
@@ -86,6 +92,19 @@ export default function Catalog(){
         return <p className="text-center text-red-500 mt-4">{error}</p>;
     }
 
+    // Filtros de la lista
+    const filteredCatalogs = catalogs.filter(catalog => {
+        // Filtro por ID
+        const matchId =
+            searchId === "" || catalog.toolCatalogId.toString() === searchId;
+
+        // Filtro por nombre (insensible a mayusculas)
+        const matchName =
+            searchName === "" || catalog.toolName.toLowerCase().includes(searchName.toLowerCase());
+
+        return matchId && matchName;
+    });
+
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl text-gray-800">
             
@@ -100,6 +119,32 @@ export default function Catalog(){
             </div>
 
             <h1 className="text-2xl font-bold mb-6 text-center">Catálogo de Herramientas</h1>
+
+            {/* Filtros por id y nombre */}
+            <div className="flex gap-4 mb-6">
+
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por ID</label>
+                    <input
+                        type="number"
+                        value={searchId}
+                        onChange={(e) => setSearchId(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: 12"
+                    />
+                </div>
+
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por nombre</label>
+                    <input
+                        type="text"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: Taladro"
+                    />
+                </div>
+            </div>
 
             {/* Tabla */}
             <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">
@@ -117,7 +162,7 @@ export default function Catalog(){
                 </thead>
 
                 <tbody>
-                    {catalogs.map((catalog) => (
+                    {filteredCatalogs.map((catalog) => (
                         <tr key={catalog.toolCatalogId} className="border-b last:border-none">
                             <td className="py-2 px-4">{catalog.toolCatalogId}</td>
                             <td className="py-2 px-4">{catalog.toolName}</td>
