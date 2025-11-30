@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { getRole } from "../auth/auth";
 import AdminMenu from "../menu/AdminMenu";
 import EmployeeMenu from "../menu/EmployeeMenu";
@@ -9,6 +10,7 @@ import EmployeeMenu from "../menu/EmployeeMenu";
     * información entregada en el login
 */
 const Home = () => {
+    const navigate = useNavigate();
     const role = getRole(); // Obtiene el rol del usuario
 
     return (
@@ -19,7 +21,20 @@ const Home = () => {
 
             {role === "ADMIN" && <AdminMenu />}
             {role === "EMPLOYEE" && <EmployeeMenu />}
-            {!role && <p className="text-red-600">No tienes un rol asignado</p>}
+            {!role && (
+                <div className="flex flex-col items-center gap-4">
+                    <p className="text-red-600 text-lg font-semibold">
+                        No tienes un rol asignado
+                    </p>
+
+                    <button
+                        onClick={() => navigate("/login")}
+                        className="px-6 py-2 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600 transition-all"
+                    >
+                        Volver al login
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

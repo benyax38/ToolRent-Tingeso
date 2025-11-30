@@ -37,31 +37,52 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public access */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
         <Route path="/home" element={<Home />} />
-        <Route path="/roles" element={<Roles />} />
-        <Route path="/catalog" element={<Catalog />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/tools" element={<Tools />} />
         <Route path="/clients" element={<Clients />} />
-        <Route path="/kardex" element={<Kardex />} />
+        <Route path="/tools" element={<Tools />} />
         <Route path="/loans" element={<Loans />} />
-        <Route path="/penalties" element={<Penalties />} />
-        <Route path="/rates" element={<Rates />} />
+
+        {/* ADMIN only */}
+        <Route path="/roles" element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <Roles />
+          </ProtectedRoute>} />
+
+        <Route path="/catalog" element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <Catalog />
+          </ProtectedRoute>} />
+
+        <Route path="/users" element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <Users />
+          </ProtectedRoute>} />
+
+        <Route path="/kardex" element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <Kardex />
+          </ProtectedRoute>} />
+
+        <Route path="/penalties" element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <Penalties />
+          </ProtectedRoute>} />
+
+        <Route path="/rates" element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <Rates />
+          </ProtectedRoute>} />
+        
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound/>} />
       </Routes>
     </Router>
   );
 }
-/*
-<Route path="/tasks" element={
-          <ProtectedRoute roles={["EMPLOYEE"]}>
-            <Tasks />
-          </ProtectedRoute>
-        } />
-*/
+
 export default App; // Permite exportar App hacia main.jsx
 
