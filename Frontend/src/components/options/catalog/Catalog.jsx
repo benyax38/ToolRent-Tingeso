@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import catalogService from "./catalogService";
+import Paginator from "../utils/Paginator";
 
 export default function Catalog(){
     const [catalogs, setCatalogs] = useState([]);
@@ -32,6 +33,39 @@ export default function Catalog(){
     // Variables para filtros
     const [searchId, setSearchId] = useState("");
     const [searchName, setSearchName] = useState("");
+    const [searchCategory, setSearchCategory] = useState("");
+
+    // Filtros de la lista
+    const filteredCatalogs = catalogs.filter(catalog => {
+        // Filtro por ID
+        const matchId =
+            searchId === "" || catalog.toolCatalogId.toString() === searchId;
+
+        // Filtro por nombre (insensible a mayusculas)
+        const matchName =
+            searchName === "" || catalog.toolName.toLowerCase().includes(searchName.toLowerCase());
+
+        // Filtro por categoria (insensible a mayusculas)
+        const matchCategory =
+            searchCategory === "" || catalog.toolCategory.toLowerCase().includes(searchCategory.toLowerCase());
+
+        return matchId && matchName && matchCategory;
+    });
+
+    // Reinicio de pagina al aplicar filtros
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchId, searchName]);
+
+    // Estado de paginacion
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculo de indices para paginacion
+    const totalPages = Math.ceil(filteredCatalogs.length / itemsPerPage);
+    const indexOfLast = currentPage * itemsPerPage;
+    const indexOfFirst = indexOfLast - itemsPerPage;
+    const currentCatalogs = filteredCatalogs.slice(indexOfFirst, indexOfLast);
 
     const navigate = useNavigate();
 
@@ -92,19 +126,6 @@ export default function Catalog(){
         return <p className="text-center text-red-500 mt-4">{error}</p>;
     }
 
-    // Filtros de la lista
-    const filteredCatalogs = catalogs.filter(catalog => {
-        // Filtro por ID
-        const matchId =
-            searchId === "" || catalog.toolCatalogId.toString() === searchId;
-
-        // Filtro por nombre (insensible a mayusculas)
-        const matchName =
-            searchName === "" || catalog.toolName.toLowerCase().includes(searchName.toLowerCase());
-
-        return matchId && matchName;
-    });
-
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl text-gray-800">
             
@@ -120,9 +141,10 @@ export default function Catalog(){
 
             <h1 className="text-2xl font-bold mb-6 text-center">Catálogo de Herramientas</h1>
 
-            {/* Filtros por id y nombre */}
+            {/* Filtros por ID, nombre y categoria */}
             <div className="flex gap-4 mb-6">
 
+                {/* Filtrar por ID */}
                 <div className="flex flex-col">
                     <label className="text-sm text-gray-600">Filtrar por ID</label>
                     <input
@@ -134,6 +156,7 @@ export default function Catalog(){
                     />
                 </div>
 
+                {/* Filtrar por nombre */}
                 <div className="flex flex-col">
                     <label className="text-sm text-gray-600">Filtrar por nombre</label>
                     <input
@@ -142,6 +165,18 @@ export default function Catalog(){
                         onChange={(e) => setSearchName(e.target.value)}
                         className="border border-gray-300 rounded-lg px-3 py-1"
                         placeholder="Ej: Taladro"
+                    />
+                </div>
+
+                {/* Filtrar por categoria */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por categoría</label>
+                    <input
+                        type="text"
+                        value={searchCategory}
+                        onChange={(e) => setSearchCategory(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: Manual"
                     />
                 </div>
             </div>
@@ -162,7 +197,7 @@ export default function Catalog(){
                 </thead>
 
                 <tbody>
-                    {filteredCatalogs.map((catalog) => (
+                    {currentCatalogs.map((catalog) => (
                         <tr key={catalog.toolCatalogId} className="border-b last:border-none">
                             <td className="py-2 px-4">{catalog.toolCatalogId}</td>
                             <td className="py-2 px-4">{catalog.toolName}</td>
@@ -186,6 +221,12 @@ export default function Catalog(){
                     ))}
                 </tbody>
             </table>
+
+            <Paginator
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
 
             {/* Boton para abrir modal */}
             <div className="text-center mt-6">

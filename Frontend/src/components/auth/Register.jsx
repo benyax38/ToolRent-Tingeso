@@ -10,7 +10,7 @@ export default function Register() {
     userPhone: "",
     userEmail: "",
     userPassword: "",
-    role: 2 // por defecto EMPLOYEE
+    roleId: ""
   });
 
   const [error, setError] = useState("");
@@ -127,6 +127,7 @@ export default function Register() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-black bg-white"
               required
             >
+              <option value="" disabled>Selecciona un rol...</option>
               <option value={1}>ADMIN</option>
               <option value={2}>EMPLOYEE</option>
             </select>

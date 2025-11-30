@@ -1,11 +1,49 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import penaltyService from "./penaltyService";
+import Paginator from "../utils/Paginator";
 
 export default function Penalties() {
     const [penalties, setPenalties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    // Variables para filtros
+    const [searchId, setSearchId] = useState("");
+    const [searchPenaltyStatus, setSearchPenaltyStatus] = useState("");
+    const [searchLoanId, setSearchLoanId] = useState("");
+
+    // Filtros de la lista
+    const filteredPenalties = penalties.filter(penalty => {
+        // Filtro por ID
+        const matchId =
+            searchId === "" || penalty.penaltyId.toString() === searchId;
+
+        // Filtro por estado (insensible a mayusculas)
+        const matchPenaltyStatus =
+            searchPenaltyStatus === "" || penalty.penaltyStatus.toLowerCase().includes(searchPenaltyStatus.toLowerCase());
+
+        // Filtro por ID prestamo
+        const matchLoanId =
+            searchLoanId === "" || penalty.loanId.toString() === searchLoanId;
+
+        return matchId && matchPenaltyStatus && matchLoanId;
+    });
+
+    // Reinicio de pagina al aplicar filtros
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchId, searchPenaltyStatus, searchLoanId]);
+
+    // Estado de paginacion
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculo de indices para paginacion
+    const totalPages = Math.ceil(filteredPenalties.length / itemsPerPage);
+    const indexOfLast = currentPage * itemsPerPage;
+    const indexOfFirst = indexOfLast - itemsPerPage;
+    const currentPenalties = filteredPenalties.slice(indexOfFirst, indexOfLast);
 
     const navigate = useNavigate();
 
@@ -48,6 +86,45 @@ export default function Penalties() {
 
             <h1 className="text-2xl font-bold mb-6 text-center">Gestión de Multas</h1>
 
+            {/* Filtros por ID, estado y ID prestamo */}
+            <div className="flex gap-4 mb-6">
+
+                {/* Filtro por ID */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por ID</label>
+                    <input
+                        type="number"
+                        value={searchId}
+                        onChange={(e) => setSearchId(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: 12"
+                    />
+                </div>
+
+                {/* Filtro por estado */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por estado</label>
+                    <input
+                        type="text"
+                        value={searchPenaltyStatus}
+                        onChange={(e) => setSearchPenaltyStatus(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: IMPAGO"
+                    />
+                </div>
+
+                {/* Filtro por ID prestamo */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por ID préstamo</label>
+                    <input
+                        type="number"
+                        value={searchLoanId}
+                        onChange={(e) => setSearchLoanId(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: 10"
+                    />
+                </div>
+            </div>
 
             {/* Tabla */}
             <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">
@@ -66,7 +143,7 @@ export default function Penalties() {
 
 
                 <tbody>
-                    {penalties.map((penalty) => (
+                    {currentPenalties.map((penalty) => (
                         <tr key={penalty.penaltyId} className="border-b last:border-none">
                             <td className="py-2 px-4">{penalty.penaltyId}</td>
                             <td className="py-2 px-4">{penalty.amount}</td>
@@ -80,6 +157,12 @@ export default function Penalties() {
                     ))}
                 </tbody>
             </table>
+
+            <Paginator
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }

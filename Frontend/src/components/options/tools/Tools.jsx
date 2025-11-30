@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toolService from "./toolService";
+import Paginator from "../utils/Paginator";
 
 export default function Tools() {
     const [tools, setTools] = useState([]);
@@ -14,6 +15,48 @@ export default function Tools() {
     const [loanId, setLoanId] = useState("");
     const [decision, setDecision] = useState("REPARADA");
     const [notes, setNotes] = useState("");
+
+    // Variables para filtros
+    const [searchId, setSearchId] = useState("");
+    const [searchStatus, setSearchStatus] = useState("");
+    const [searchCatalogId, setSearchCatalogId] = useState("");
+    const [searchName, setSearchName] = useState("");
+
+    // Filtros de la lista
+    const filteredTools = tools.filter(tool => {
+        // Filtro por ID
+        const matchId =
+            searchId === "" || tool.toolId.toString() === searchId;
+
+        // Filtro por estado (insensible a mayusculas)
+        const matchStatus =
+            searchStatus === "" || tool.currentToolState.toLowerCase().includes(searchStatus.toLowerCase());
+
+        // Filtro por ID
+        const matchCatalogId =
+            searchCatalogId === "" || tool.toolCatalogId.toString() === searchCatalogId;
+
+        // Filtro por nombre (insensible a mayusculas)
+        const matchName =
+            searchName === "" || tool.toolCatalogName.toLowerCase().includes(searchName.toLowerCase());
+        
+        return matchId && matchStatus && matchCatalogId && matchName;
+    });
+
+    // Reinicio de pagina al aplicar filtros
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchId, searchStatus, searchCatalogId, searchName]);
+
+    // Estado de paginacion
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculo de paginacion
+    const totalPages = Math.ceil(filteredTools.length / itemsPerPage);
+    const indexOfLast = currentPage * itemsPerPage;
+    const indexOfFirst = indexOfLast - itemsPerPage;
+    const currentTools = filteredTools.slice(indexOfFirst, indexOfLast);
 
     // Obtener usuario del login
     const user = JSON.parse(localStorage.getItem("user"));
@@ -81,6 +124,57 @@ export default function Tools() {
 
             <h1 className="text-2xl font-bold mb-6 text-center">Gestión de Herramientas</h1>
 
+            {/* Filtros por ID, estado, ID catalogo y nombre */}
+            <div className="flex gap-6 mb-6 flex-wrap">
+
+                {/* Filtro por ID */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por ID</label>
+                    <input
+                        type="number"
+                        value={searchId}
+                        onChange={(e) => setSearchId(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: 12"
+                    />
+                </div>
+
+                {/* Filtro por estado */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por estado</label>
+                    <input
+                        type="text"
+                        value={searchStatus}
+                        onChange={(e) => setSearchStatus(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: DISPONIBLE"
+                    />
+                </div>
+
+                {/* Filtro por ID catalogo */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por ID catálogo</label>
+                    <input
+                        type="number"
+                        value={searchCatalogId}
+                        onChange={(e) => setSearchCatalogId(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: 12"
+                    />
+                </div>
+
+                {/* Filtro por nombre */}
+                <div className="flex flex-col">
+                    <label className="text-sm text-gray-600">Filtrar por nombre</label>
+                    <input
+                        type="text"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1"
+                        placeholder="Ej: Martillo"
+                    />
+                </div>
+            </div>
 
             {/* Tabla */}
             <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">
@@ -96,7 +190,7 @@ export default function Tools() {
 
 
                 <tbody>
-                    {tools.map((tool) => (
+                    {currentTools.map((tool) => (
                         <tr key={tool.toolId} className="border-b last:border-none">
                             <td className="py-2 px-4">{tool.toolId}</td>
                             <td className="py-2 px-4">{tool.currentToolState}</td>
@@ -121,6 +215,12 @@ export default function Tools() {
                     ))}
                 </tbody>
             </table>
+
+            <Paginator
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
 
             {/* MODAL */}
             {showModal && (
