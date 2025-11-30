@@ -3,6 +3,7 @@ package com.example.demo.Controller;
 import com.example.demo.Entity.PenaltyConfigEntity;
 import com.example.demo.Service.PenaltyConfigService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,7 +26,14 @@ public class PenaltyConfigController {
 
     @GetMapping
     public ResponseEntity<PenaltyConfigEntity> getConfig() {
-        return ResponseEntity.ok(service.getConfigs());
+        PenaltyConfigEntity config = service.getConfigs();
+
+        if (config == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        }
+
+        return ResponseEntity.ok(config);
     }
 
     @PatchMapping("/daily-fine")

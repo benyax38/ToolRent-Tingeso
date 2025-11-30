@@ -23,7 +23,7 @@ public class PenaltyConfigService {
         return repository.findAll()
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("No existe configuración"));
+                .orElse(null);
     }
 
     public PenaltyConfigEntity updateDailyFinesRate(Double newRate) {
