@@ -11,6 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>Toolrent</name>
 	<description>Tienda dedicada al arriendo de herramientas para construcción, reparaciones y proyectos domésticos.</description>
 	<url/>
