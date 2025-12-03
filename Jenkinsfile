@@ -12,6 +12,9 @@ pipeline {
             steps {
                 echo "📥 Obteniendo código desde GitHub..."
 
+                 // Elimina carpeta repo si existe
+                sh "rm -rf repo"
+                
                 withCredentials([usernamePassword(
                     credentialsId: 'github-credentials',
                     usernameVariable: 'GIT_USER',
