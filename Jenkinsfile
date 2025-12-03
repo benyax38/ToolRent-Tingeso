@@ -27,7 +27,7 @@ pipeline {
         stage('Backend - Tests') {
             steps {
                 echo "🧪 Ejecutando pruebas unitarias del backend..."
-                dir("repo/backend") {
+                dir("repo/Backend") {
                     sh "chmod +x mvnw"
                     sh "./mvnw test"
                 }
@@ -37,14 +37,14 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 echo "🐳 Construyendo imagen Docker del backend..."
-                sh "docker build -t ${BACKEND_IMAGE}:latest repo/backend/"
+                sh "docker build -t ${BACKEND_IMAGE}:latest repo/Backend/"
             }
         }
 
         stage('Build Frontend Image') {
             steps {
                 echo "🎨 Construyendo imagen Docker del frontend..."
-                sh "docker build -t ${FRONTEND_IMAGE}:latest repo/frontend/"
+                sh "docker build -t ${FRONTEND_IMAGE}:latest repo/Frontend/"
             }
         }
 
