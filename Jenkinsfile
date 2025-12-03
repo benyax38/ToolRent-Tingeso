@@ -14,7 +14,7 @@ pipeline {
 
                  // Elimina carpeta repo si existe
                 sh "rm -rf repo"
-                
+
                 withCredentials([usernamePassword(
                     credentialsId: 'github-credentials',
                     usernameVariable: 'GIT_USER',
@@ -26,6 +26,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Debug Backend Directory') {
+            steps {
+                sh "ls -R repo"
+            }
+        }
+
 
         stage('Backend - Tests') {
             steps {
