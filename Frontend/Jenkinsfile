@@ -5,7 +5,14 @@ pipeline {
     }
     stages{
         stage('Build Frontend'){
+            agent {
+                docker { 
+                    image 'node:20-alpine' 
+                    args '-u root' // Necesario para instalar paquetes
+                }
+            }
             steps{
+                sh 'apk add --no-cache libatomic'
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/benyax38/ToolRent-Tingeso.git']])
                 dir("Frontend"){
                     sh "npm install" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
