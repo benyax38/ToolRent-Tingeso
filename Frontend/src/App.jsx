@@ -3,7 +3,7 @@ import { getRole } from './components/auth/auth';
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
-import NotFound from "./components/notFound/NotFound";
+import NotFound from "./components/NotFound/NotFound";
 import Home from "./components/home/Home";
 import Roles from "./components/options/roles/Roles"
 import Catalog from "./components/options/catalog/Catalog";
