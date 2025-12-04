@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    tools{
+        maven 'Maven'
+    }
+    stages{
+        stage('Build maven'){
+            steps{
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/benyax38/ToolRent-Tingeso.git']])
+                    dir("Backend"){
+                        sh 'mvn clean install'
+                    }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                dir("Backend"){
+                    sh 'mvn test'
+                }
+            }
+        }
+stage('Build and Push Docker Image'){
+    steps{
+        dir("Backend"){
+            script{
+
+                    withDockerRegistry(credentialsId: 'dockerhub'){
+                        sh 'docker build -t benyax38/backend:latest .'
+                        sh 'docker push benyax38/backend:latest'
+                    }
+                }
+            }
+        }
+    }
+}
+    }
