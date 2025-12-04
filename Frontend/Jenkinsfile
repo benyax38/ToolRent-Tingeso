@@ -1,31 +1,53 @@
 pipeline {
     agent any
-    tools {
-        nodejs 'nodejs' // Debe coincidir con el nombre que pusiste en el paso 1
+    
+    // Configuración global para evitar errores de red en Docker
+    environment {
+        DOCKER_BUILDKIT = '0'
     }
-    stages{
-        stage('Build Frontend'){
+
+    tools {
+        nodejs 'nodejs' 
+    }
+
+    stages {
+        // NOTA: Si tu Dockerfile ya es "Multi-stage" (tiene FROM node... as build),
+        // esta etapa de "Build Frontend" es redundante (se hace doble trabajo),
+        // pero la dejaré por si la usas para correr tests unitarios.
+        stage('Build Frontend') {
             agent {
                 docker { 
                     image 'node:20-alpine' 
-                    args '-u root' // Necesario para instalar paquetes
+                    args '-u root' 
                 }
             }
-            steps{
+            steps {
                 sh 'apk add --no-cache libatomic'
+                // Asegúrate de que la URL del repo sea correcta y tengas permisos
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/benyax38/ToolRent-Tingeso.git']])
-                dir("Frontend"){
-                    sh "npm install" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
-                    sh "npm run build" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
+                
+                dir("Frontend") {
+                    sh "npm install" 
+                    sh "npm run build" 
                 }
             }
         }
-        stage("Build and Push Docker Image"){
-            steps{
-                dir("Frontend"){
-                    script{
-                        withDockerRegistry(credentialsId: 'dockerhub'){
-                            sh "docker build -t benyax38/frontend ."
+
+        stage("Build and Push Docker Image") {
+            steps {
+                dir("Frontend") {
+                    script {
+                        withDockerRegistry(credentialsId: 'dockerhub') {
+                            // AQUÍ ESTÁ EL CAMBIO IMPORTANTE:
+                            // Usamos triple comilla (""") para dividir el comando en varias líneas
+                            // e inyectamos las variables con --build-arg
+                            sh """
+                                docker build \
+                                --build-arg VITE_TOOLRENT_BACKEND_SERVER=localhost \
+                                --build-arg VITE_TOOLRENT_BACKEND_PORT=8090 \
+                                -t benyax38/frontend .
+                            """
+                            
                             sh "docker push benyax38/frontend"
                         }
                     }
