@@ -25,8 +25,8 @@ pipeline {
                 dir("Frontend"){
                     script{
                         withDockerRegistry(credentialsId: 'dockerhub'){
-                            sh "docker build -t benyax38/Frontend ."
-                            sh "docker push benyax38/Frontend"
+                            sh "docker build -t benyax38/frontend ."
+                            sh "docker push benyax38/frontend"
                         }
                     }
                 }
