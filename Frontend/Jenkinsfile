@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        nodejs 'nodejs' // Debe coincidir con el nombre que pusiste en el paso 1
+    }
     stages{
         stage('Build Frontend'){
             steps{
