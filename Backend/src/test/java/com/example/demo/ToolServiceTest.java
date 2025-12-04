@@ -29,9 +29,9 @@ class ToolServiceTest {
 
     @InjectMocks private ToolService toolService;
 
-    // -------------------------------------------------------------
+    // =============================================================
     // validateAndLoanTool()
-    // -------------------------------------------------------------
+    // =============================================================
     @Test
     void testValidateAndLoanTool_Success() {
         ToolCatalogEntity catalog = new ToolCatalogEntity();
@@ -71,6 +71,19 @@ class ToolServiceTest {
     }
 
     @Test
+    void testValidateAndLoanTool_NoCatalog_Throws() {
+        // --- Nuevo Test para cubrir: if (catalog == null) ---
+        ToolEntity tool = new ToolEntity();
+        tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
+        tool.setTool_catalogs(null); // Caso sin catálogo
+
+        when(toolRepository.findById(2L)).thenReturn(Optional.of(tool));
+
+        Exception ex = assertThrows(RuntimeException.class, () -> toolService.validateAndLoanTool(2L));
+        assertTrue(ex.getMessage().contains("no tiene un catálogo asociado"));
+    }
+
+    @Test
     void testValidateAndLoanTool_NoStock_Throws() {
         ToolCatalogEntity catalog = new ToolCatalogEntity();
         catalog.setAvailableUnits(0);
@@ -84,13 +97,14 @@ class ToolServiceTest {
         assertThrows(RuntimeException.class, () -> toolService.validateAndLoanTool(5L));
     }
 
-    // -------------------------------------------------------------
+    // =============================================================
     // evaluateTools()
-    // -------------------------------------------------------------
+    // =============================================================
+
+    // --- Casos Exitosos ---
+
     @Test
     void testEvaluateTools_DarDeBaja() {
-
-        // --- Tool en reparación ---
         ToolEntity tool = new ToolEntity();
         tool.setToolId(1L);
         tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
@@ -99,18 +113,15 @@ class ToolServiceTest {
         catalog.setToolCatalogId(88L);
         tool.setTool_catalogs(catalog);
 
-        // --- Usuario ---
         UserEntity user = new UserEntity();
         user.setUserId(5L);
 
-        // --- Préstamo asociado ---
         LoanEntity loan = new LoanEntity();
         loan.setLoanId(100L);
         ClientEntity client = new ClientEntity();
         client.setClientId(777L);
         loan.setClients(client);
 
-        // herramienta asociada al préstamo
         ToolEntity toolInLoan = new ToolEntity();
         toolInLoan.setToolId(1L);
         loan.setTools(toolInLoan);
@@ -119,7 +130,6 @@ class ToolServiceTest {
         dto.setLoanId(100L);
         dto.setDecision(ToolService.ToolEvaluationDecision.DAR_DE_BAJA);
 
-        // --- Mocks ---
         when(toolRepository.findById(1L)).thenReturn(Optional.of(tool));
         when(userRepository.findById(5L)).thenReturn(Optional.of(user));
         when(loanRepository.findById(100L)).thenReturn(Optional.of(loan));
@@ -133,8 +143,6 @@ class ToolServiceTest {
 
     @Test
     void testEvaluateTools_Reparada() {
-
-        // --- Tool en reparación ---
         ToolEntity tool = new ToolEntity();
         tool.setToolId(2L);
         tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
@@ -144,11 +152,9 @@ class ToolServiceTest {
         catalog.setAvailableUnits(5);
         tool.setTool_catalogs(catalog);
 
-        // --- Usuario ---
         UserEntity user = new UserEntity();
         user.setUserId(20L);
 
-        // --- Préstamo ---
         LoanEntity loan = new LoanEntity();
         loan.setLoanId(300L);
         ClientEntity client = new ClientEntity();
@@ -163,7 +169,6 @@ class ToolServiceTest {
         dto.setLoanId(300L);
         dto.setDecision(ToolService.ToolEvaluationDecision.REPARADA);
 
-        // --- Mocks ---
         when(toolRepository.findById(2L)).thenReturn(Optional.of(tool));
         when(userRepository.findById(20L)).thenReturn(Optional.of(user));
         when(loanRepository.findById(300L)).thenReturn(Optional.of(loan));
@@ -173,16 +178,106 @@ class ToolServiceTest {
         ToolEntity result = toolService.evaluateTools(2L, 20L, dto);
 
         assertEquals(ToolService.ToolStatus.DISPONIBLE, result.getCurrentToolState());
-        assertEquals(6, catalog.getAvailableUnits()); // se sumó 1
+        assertEquals(6, catalog.getAvailableUnits());
         verify(kardexService, times(1)).registerMovement(any(KardexCreateDTO.class));
     }
 
-    // -------------------------------------------------------------
+    // --- Nuevos Tests de Validación para evaluateTools (Sad Paths) ---
+
+    @Test
+    void testEvaluateTools_ToolNotFound() {
+        when(toolRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ToolEvaluationDTO dto = new ToolEvaluationDTO();
+        assertThrows(RuntimeException.class, () -> toolService.evaluateTools(99L, 1L, dto));
+    }
+
+    @Test
+    void testEvaluateTools_WrongStatus() {
+        // La herramienta existe pero NO está EN_REPARACION
+        ToolEntity tool = new ToolEntity();
+        tool.setToolId(1L);
+        tool.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
+
+        when(toolRepository.findById(1L)).thenReturn(Optional.of(tool));
+
+        ToolEvaluationDTO dto = new ToolEvaluationDTO();
+        Exception ex = assertThrows(RuntimeException.class, () -> toolService.evaluateTools(1L, 1L, dto));
+        assertTrue(ex.getMessage().contains("no tiene estado EN_REPARACION"));
+    }
+
+    @Test
+    void testEvaluateTools_UserNotFound() {
+        // Herramienta OK, pero usuario no existe
+        ToolEntity tool = new ToolEntity();
+        tool.setToolId(1L);
+        tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+
+        when(toolRepository.findById(1L)).thenReturn(Optional.of(tool));
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ToolEvaluationDTO dto = new ToolEvaluationDTO();
+        Exception ex = assertThrows(RuntimeException.class, () -> toolService.evaluateTools(1L, 99L, dto));
+        assertTrue(ex.getMessage().contains("Usuario no encontrado"));
+    }
+
+    @Test
+    void testEvaluateTools_LoanNotFound() {
+        // Herramienta OK, Usuario OK, pero Préstamo no existe
+        ToolEntity tool = new ToolEntity();
+        tool.setToolId(1L);
+        tool.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+
+        UserEntity user = new UserEntity();
+        user.setUserId(1L);
+
+        when(toolRepository.findById(1L)).thenReturn(Optional.of(tool));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(loanRepository.findById(500L)).thenReturn(Optional.empty());
+
+        ToolEvaluationDTO dto = new ToolEvaluationDTO();
+        dto.setLoanId(500L);
+
+        Exception ex = assertThrows(RuntimeException.class, () -> toolService.evaluateTools(1L, 1L, dto));
+        assertTrue(ex.getMessage().contains("Préstamo no encontrado"));
+    }
+
+    @Test
+    void testEvaluateTools_ToolMismatch() {
+        // El préstamo existe, pero tiene asociada OTRA herramienta distinta a la que se está evaluando
+        Long toolIdEnEvaluacion = 1L;
+        Long toolIdEnPrestamo = 2L;
+
+        ToolEntity toolEval = new ToolEntity();
+        toolEval.setToolId(toolIdEnEvaluacion);
+        toolEval.setCurrentToolState(ToolService.ToolStatus.EN_REPARACION);
+
+        UserEntity user = new UserEntity();
+        user.setUserId(10L);
+
+        ToolEntity toolPrestada = new ToolEntity();
+        toolPrestada.setToolId(toolIdEnPrestamo); // ID diferente
+
+        LoanEntity loan = new LoanEntity();
+        loan.setLoanId(100L);
+        loan.setTools(toolPrestada);
+
+        when(toolRepository.findById(toolIdEnEvaluacion)).thenReturn(Optional.of(toolEval));
+        when(userRepository.findById(10L)).thenReturn(Optional.of(user));
+        when(loanRepository.findById(100L)).thenReturn(Optional.of(loan));
+
+        ToolEvaluationDTO dto = new ToolEvaluationDTO();
+        dto.setLoanId(100L);
+
+        Exception ex = assertThrows(RuntimeException.class, () -> toolService.evaluateTools(toolIdEnEvaluacion, 10L, dto));
+        assertTrue(ex.getMessage().contains("El préstamo no corresponde a esta herramienta"));
+    }
+
+    // =============================================================
     // getAllToolsDTO()
-    // -------------------------------------------------------------
+    // =============================================================
     @Test
     void testGetAllToolsDTO_ReturnsList() {
-        // Catálogo mock
         ToolCatalogEntity catalog1 = new ToolCatalogEntity();
         catalog1.setToolCatalogId(100L);
         catalog1.setToolName("Martillo");
@@ -191,13 +286,11 @@ class ToolServiceTest {
         catalog2.setToolCatalogId(200L);
         catalog2.setToolName("Destornillador");
 
-        // Herramienta 1
         ToolEntity t1 = new ToolEntity();
         t1.setToolId(1L);
         t1.setCurrentToolState(ToolService.ToolStatus.DISPONIBLE);
         t1.setTool_catalogs(catalog1);
 
-        // Herramienta 2
         ToolEntity t2 = new ToolEntity();
         t2.setToolId(2L);
         t2.setCurrentToolState(ToolService.ToolStatus.PRESTADA);
@@ -207,7 +300,6 @@ class ToolServiceTest {
 
         List<ToolDTO> list = toolService.getAllToolsDTO();
 
-        // Validaciones
         assertEquals(2, list.size());
 
         ToolDTO dto1 = list.get(0);
@@ -223,9 +315,9 @@ class ToolServiceTest {
         assertEquals("Destornillador", dto2.getToolCatalogName());
     }
 
-    // -------------------------------------------------------------
+    // =============================================================
     // createTools()
-    // -------------------------------------------------------------
+    // =============================================================
     @Test
     void testCreateTools() {
         ToolEntity tool = new ToolEntity();
@@ -237,9 +329,9 @@ class ToolServiceTest {
         verify(toolRepository).save(tool);
     }
 
-    // -------------------------------------------------------------
+    // =============================================================
     // deleteToolsById()
-    // -------------------------------------------------------------
+    // =============================================================
     @Test
     void testDeleteToolsById_Success() {
         when(toolRepository.existsById(7L)).thenReturn(true);
@@ -262,4 +354,3 @@ class ToolServiceTest {
         verify(toolRepository, never()).deleteById(any());
     }
 }
-

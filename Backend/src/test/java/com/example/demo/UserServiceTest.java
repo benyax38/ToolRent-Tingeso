@@ -110,6 +110,26 @@ class UserServiceTest {
     }
 
     // ───────────────────────────────────────────────────────────────
+    // TEST: createUsers lanza RuntimeException (Rol no encontrado)
+    // --- NUEVO PARA COBERTURA 100% ---
+    // ───────────────────────────────────────────────────────────────
+    @Test
+    void testCreateUsers_roleNotFound() {
+        UserRegisterDTO dto = new UserRegisterDTO();
+        dto.setUserRut("2-8");
+        dto.setRoleId(99L);
+        dto.setUserPassword("pass");
+
+        when(userRepository.findByUserRut("2-8")).thenReturn(Optional.empty());
+        when(roleRepository.findById(99L)).thenReturn(Optional.empty());
+
+        Exception ex = assertThrows(RuntimeException.class,
+                () -> userService.createUsers(dto));
+
+        assertEquals("Rol no encontrado", ex.getMessage());
+    }
+
+    // ───────────────────────────────────────────────────────────────
     // TEST: loginUsers (caso OK)
     // ───────────────────────────────────────────────────────────────
     @Test
@@ -144,8 +164,60 @@ class UserServiceTest {
 
         when(userRepository.findByUserRut("12")).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class,
+        Exception ex = assertThrows(RuntimeException.class,
                 () -> userService.loginUsers("12", "1234"));
+
+        assertEquals("Usuario no encontrado", ex.getMessage());
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // TEST: loginUsers credenciales incorrectas
+    // --- NUEVO PARA COBERTURA 100% ---
+    // ───────────────────────────────────────────────────────────────
+    @Test
+    void testLoginUsers_wrongPassword() {
+        // Generamos un hash real para la password "correcta"
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encodedPw = encoder.encode("correctPassword");
+
+        UserEntity user = new UserEntity();
+        user.setUserRut("12");
+        user.setUserPassword(encodedPw); // En BD está la correcta
+
+        when(userRepository.findByUserRut("12")).thenReturn(Optional.of(user));
+
+        // Intentamos login con "wrongPassword"
+        // Como el servicio usa 'new BCryptPasswordEncoder()' internamente, funcionará correctamente validando el hash
+        Exception ex = assertThrows(RuntimeException.class,
+                () -> userService.loginUsers("12", "wrongPassword"));
+
+        assertEquals("Credenciales incorrectas", ex.getMessage());
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // TEST: mapToUserResponseDTO (Directo)
+    // --- OPCIONAL PERO BUENO PARA ASEGURAR COBERTURA ---
+    // ───────────────────────────────────────────────────────────────
+    @Test
+    void testMapToUserResponseDTO() {
+        RoleEntity role = new RoleEntity();
+        role.setRoleId(5L);
+        role.setRoleName(RoleService.UserRoles.EMPLOYEE);
+
+        UserEntity user = new UserEntity();
+        user.setUserId(100L);
+        user.setUserFirstName("Test");
+        user.setUserLastName("User");
+        user.setUserEmail("test@test.com");
+        user.setUserRut("99-9");
+        user.setUserPhone("999");
+        user.setRoles(role);
+
+        UserResponseDTO dto = userService.mapToUserResponseDTO(user);
+
+        assertEquals(100L, dto.getUserId());
+        assertEquals("Test", dto.getUserFirstName());
+        assertEquals("EMPLOYEE", dto.getRole().getRoleName());
     }
 
     // ───────────────────────────────────────────────────────────────
@@ -167,8 +239,9 @@ class UserServiceTest {
     void testDeleteUsersById_notFound() {
         when(userRepository.existsById(10L)).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> userService.deleteUsersById(10L));
+
+        assertTrue(ex.getMessage().contains("No existe usuario"));
     }
 }
-
