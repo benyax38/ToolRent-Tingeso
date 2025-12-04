@@ -5,6 +5,15 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+# 1. Declara que esperas recibir estas variables (Mismos nombres que tu .env)
+ARG VITE_TOOLRENT_BACKEND_SERVER
+ARG VITE_TOOLRENT_BACKEND_PORT
+
+# 2. Conviértelas en variables de entorno para que el build las vea
+ENV VITE_TOOLRENT_BACKEND_SERVER=$VITE_TOOLRENT_BACKEND_SERVER
+ENV VITE_TOOLRENT_BACKEND_PORT=$VITE_TOOLRENT_BACKEND_PORT
+
 # Esto generará la carpeta /app/dist dentro del contenedor temporal
 RUN npm run build
 
