@@ -5,8 +5,8 @@ pipeline {
             steps{
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/benyax38/ToolRent-Tingeso.git']])
                 dir("Frontend"){
-                    bat "npm install" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
-                    bat "npm run build" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
+                    sh "npm install" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
+                    sh "npm run build" // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
                 }
             }
         }
@@ -15,8 +15,8 @@ pipeline {
                 dir("Frontend"){
                     script{
                         withDockerRegistry(credentialsId: 'dockerhub'){
-                            bat "docker build -t benyax38/Frontend ."
-                            bat "docker push benyax38/Frontend"
+                            sh "docker build -t benyax38/Frontend ."
+                            sh "docker push benyax38/Frontend"
                         }
                     }
                 }
