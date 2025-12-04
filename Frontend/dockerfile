@@ -1,6 +1,20 @@
-# Etapa: servidor NGINX
+# --- Etapa 1: Construcción (Builder) ---
+FROM node:18-alpine as builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+# Esto generará la carpeta /app/dist dentro del contenedor temporal
+RUN npm run build
+
+# --- Etapa 2: Servidor NGINX (Producción) ---
 FROM nginx:stable-alpine
-COPY dist /usr/share/nginx/html
+
+# Copiamos SOLO los archivos generados en la etapa anterior
+# Nota el "--from=builder"
+COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
